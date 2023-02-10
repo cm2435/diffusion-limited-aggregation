@@ -21,41 +21,6 @@ namespace drawFuncs {
 // this is a global pointer, which is how we access the system itself
 DLASystem *sys;
 
-int main(int argc, char **argv) {
-  // turn on glut
-	glutInit(&argc, argv);
-
-  int window_size[] = { 480,480 };
-  string window_title("simple DLA simulation");
-
-  // create a window
-  Window *win = new Window(window_size,window_title);
-
-  // create the system
-  sys = new DLASystem(win);
-  
-  // this is the seed for the random numbers
-  int seed = 6;
-  cout << "setting seed " << seed << endl;
-  sys->setSeed(seed);
-  
-  // print the "help" message to the console
-  drawFuncs::introMessage();
-  
-  // tell openGL how to redraw the screen and respond to the keyboard
-	glutDisplayFunc(  drawFuncs::display );
-	glutKeyboardFunc( drawFuncs::handleKeypress );
-  
-  // tell openGL to do its first update after waiting 10ms
-  int wait = 10;
-  int val = 0;
-	glutTimerFunc(wait, drawFuncs::update, val);
-
-  // start the openGL stuff
- 	glutMainLoop();
-
-  return 0;
-}
 
 // this is just a help message
 void drawFuncs::introMessage() {
@@ -167,3 +132,38 @@ void drawFuncs::display() {
       glutSwapBuffers();
 }
 
+int main(int argc, char **argv) {
+  // turn on glut
+	glutInit(&argc, argv);
+
+  int window_size[] = { 480,480 };
+  string window_title("simple DLA simulation");
+
+  // create a window
+  Window *win = new Window(window_size,window_title);
+
+  // create the system
+  sys = new DLASystem(win);
+  
+  // this is the seed for the random numbers
+  int seed = 6;
+  cout << "setting seed " << seed << endl;
+  sys->setSeed(seed);
+  
+  // print the "help" message to the console
+  drawFuncs::introMessage();
+  
+  // tell openGL how to redraw the screen and respond to the keyboard
+	glutDisplayFunc(  drawFuncs::display );
+	glutKeyboardFunc( drawFuncs::handleKeypress );
+  
+  // tell openGL to do its first update after waiting 10ms
+  int wait = 10;
+  int val = 0;
+	glutTimerFunc(wait, drawFuncs::update, val);
+
+  // start the openGL stuff
+ 	glutMainLoop();
+
+  return 0;
+}
