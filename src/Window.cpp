@@ -1,4 +1,4 @@
-#include "Window.h"
+#include "../headers/Window.h"
 
 // constructor
 Window::Window(int set_size[],  string &set_title) {

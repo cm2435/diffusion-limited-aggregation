@@ -5,8 +5,8 @@
 #include <math.h>
 #include <string>
 
-#include "DLASystem.h"
-#include "Window.h" 
+#include "../headers/DLASystem.h"
+#include "../headers/Window.h" 
 
 using namespace std;
 
