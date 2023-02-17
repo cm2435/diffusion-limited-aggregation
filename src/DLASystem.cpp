@@ -2,6 +2,7 @@
 //  DLASystem.cpp
 //
 #include <math.h>
+#include <string.h>
 #include "../headers/DLASystem.h"
 
 // colors
@@ -18,11 +19,13 @@ namespace colours {
 //   if there is an active particle then it gets moved,
 //   if not then add a particle
 void DLASystem::Update() {
+
 	if (lastParticleIsActive == 1)
 		moveLastParticle();
 	else if (numParticles < endNum) {
 		addParticleOnAddCircle();
 		setParticleActive();
+	
 	}
 	if (lastParticleIsActive == 0 || slowNotFast == 1)
 		glutPostRedisplay(); //Tell GLUT that the display has changed
@@ -212,6 +215,9 @@ void DLASystem::moveLastParticle() {
 			if (numParticles % 100 == 0 && logfile.is_open()) {
 				logfile << numParticles << " " << clusterRadius << endl;
 			}
+			string LogRow = LogRadius();
+			LogfileRows.push_back(LogRadius());
+
 		}
 	}
 	else {
@@ -245,7 +251,7 @@ DLASystem::DLASystem(Window *set_win) {
 	cout << "creating system, gridSize " << gridSize << endl;
 	win = set_win;
 	numParticles = 0;
-	endNum = 10000;
+	endNum = 1000;
 
 	// allocate memory for the grid, remember to free the memory in destructor
 	grid = new int*[gridSize];
@@ -286,11 +292,18 @@ double DLASystem::FindFractalDimention(int NumParticles, double ClusterRadius){
 	return LogNumParticles / LogRadialFraction; 
 }
 
-void DLASystem::LogRadius(){
+string DLASystem::LogRadius(){
 	//Function for logging
-	cout << "number_particles:" << particleList.size() << ",";
-	cout << "cluster_radius:" << clusterRadius << ","; 
-	cout << "fractal_Dimention" << FindFractalDimention(particleList.size(), clusterRadius) << endl;
+	//cout << "number_particles:" << particleList.size() << ",";
+	//cout << "cluster_radius:" << clusterRadius << ","; 
+	//cout << "fractal_Dimention" << FindFractalDimention(particleList.size(), clusterRadius) << endl;
+
+	string output = 
+		"number_particles:" + to_string(particleList.size()) + "," + 
+		"cluster_radius:" + to_string(clusterRadius) + "," + 
+		"fractal_Dimention:" + to_string(FindFractalDimention(particleList.size(), clusterRadius)) + ",";
+	
+	return output;
 }
 
 // this draws the system

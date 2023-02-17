@@ -23,6 +23,7 @@ namespace drawFuncs {
 DLASystem *sys;
 
 
+
 // this is just a help message
 void drawFuncs::introMessage() {
         cout << "Keys (while in graphics window):" << endl << "  q or e to quit (or exit)" << endl;
@@ -86,10 +87,17 @@ void drawFuncs::handleKeypress(unsigned char key, int x, int y) {
     break;
   case 'u':
     cout << "upd" << endl;
-    sys->Update();
+    //sys->Update(logfile);
     break;
   case 'o':
     sys->LogRadius();
+    break;
+  case 'l':
+    ofstream logfile("output.txt");
+    for(auto var : sys->LogfileRows){
+      logfile << var << endl;
+    }
+    logfile.close();
     break;
 	}
   // tell openGL to redraw the window
@@ -107,7 +115,7 @@ void drawFuncs::update(int val) {
       wait = 0;
     
     sys->Update();
-  
+    
     // tell openGL to call this funtion again after "wait" milliseconds
     glutTimerFunc(wait, drawFuncs::update, 0);
   }
@@ -149,6 +157,7 @@ int main(int argc, char **argv) {
   // create the system
   sys = new DLASystem(win);
   
+
   // this is the seed for the random numbers
   int seed = 6;
   cout << "setting seed " << seed << endl;
@@ -164,10 +173,11 @@ int main(int argc, char **argv) {
   // tell openGL to do its first update after waiting 10ms
   int wait = 10;
   int val = 0;
+
+
 	glutTimerFunc(wait, drawFuncs::update, val);
-
   // start the openGL stuff
- 	glutMainLoop();
 
+ 	glutMainLoop();
   return 0;
 }

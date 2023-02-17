@@ -23,7 +23,7 @@ class DLASystem {
   // these are private variables and functions that the user will not see
   
     Window *win;  // window in which the system is running
-  
+
     // list of particles
     vector<Particle*> particleList;
     int numParticles;
@@ -62,6 +62,9 @@ class DLASystem {
   
   public:
   // these are public variables and functions
+
+    //Vector of strings for the log file 
+    vector<string> LogfileRows; 
 
     // update the system: if there is an active particle then move it,
     // else create a new particle (on the adding circle)
@@ -147,7 +150,7 @@ class DLASystem {
     int checkStick();
 
     //log the current number of patciles and the DLA radius 
-    void LogRadius();
+    string LogRadius();
 
     //find the fractal dimention from the number of particles and the radius 
     double FindFractalDimention(int NumParticles, double ClusterRadius); 
