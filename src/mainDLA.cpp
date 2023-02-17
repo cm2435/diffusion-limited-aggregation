@@ -7,6 +7,7 @@
 
 #include "../headers/DLASystem.h"
 #include "../headers/Window.h" 
+#include <iostream>
 
 using namespace std;
 
@@ -87,6 +88,9 @@ void drawFuncs::handleKeypress(unsigned char key, int x, int y) {
     cout << "upd" << endl;
     sys->Update();
     break;
+  case 'o':
+    sys->LogRadius();
+    break;
 	}
   // tell openGL to redraw the window
 	glutPostRedisplay();
@@ -154,8 +158,8 @@ int main(int argc, char **argv) {
   drawFuncs::introMessage();
   
   // tell openGL how to redraw the screen and respond to the keyboard
-	glutDisplayFunc(  drawFuncs::display );
-	glutKeyboardFunc( drawFuncs::handleKeypress );
+	glutDisplayFunc( drawFuncs::display );
+	glutKeyboardFunc(drawFuncs::handleKeypress );
   
   // tell openGL to do its first update after waiting 10ms
   int wait = 10;

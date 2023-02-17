@@ -1,7 +1,7 @@
 //
 //  DLASystem.cpp
 //
-
+#include <math.h>
 #include "../headers/DLASystem.h"
 
 // colors
@@ -245,7 +245,7 @@ DLASystem::DLASystem(Window *set_win) {
 	cout << "creating system, gridSize " << gridSize << endl;
 	win = set_win;
 	numParticles = 0;
-	endNum = 1000;
+	endNum = 10000;
 
 	// allocate memory for the grid, remember to free the memory in destructor
 	grid = new int*[gridSize];
@@ -254,8 +254,7 @@ DLASystem::DLASystem(Window *set_win) {
 	}
 	slowNotFast = 1;
 	// reset initial parameters
-	Reset();
-
+	Reset();\
 	addRatio = 1.2;   // how much bigger the addCircle should be, compared to cluster radius
 	killRatio = 1.7;   // how much bigger is the killCircle, compared to the addCircle
 
@@ -278,7 +277,21 @@ DLASystem::~DLASystem() {
 		logfile.close();
 }
 
+double DLASystem::FindFractalDimention(int NumParticles, double ClusterRadius){
+	//Function to find the Fractal Dimention
+	double a = 1; 
+	double LogRadialFraction = log(ClusterRadius / a);
+	double LogNumParticles = log(NumParticles);
 
+	return LogNumParticles / LogRadialFraction; 
+}
+
+void DLASystem::LogRadius(){
+	//Function for logging
+	cout << "number_particles:" << particleList.size() << ",";
+	cout << "cluster_radius:" << clusterRadius << ","; 
+	cout << "fractal_Dimention" << FindFractalDimention(particleList.size(), clusterRadius) << endl;
+}
 
 // this draws the system
 void DLASystem::DrawSquares() {
@@ -305,7 +318,6 @@ void DLASystem::DrawSquares() {
 	// this ostringstream is a way to create a string with numbers and words (similar to cout << ... )
 	ostringstream str;
 	str << "num " << numParticles << " size " << clusterRadius;
-
 	// print the string
 	win->displayString(str, -0.9, 0.9, colours::red);
 

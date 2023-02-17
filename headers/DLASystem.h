@@ -146,6 +146,12 @@ class DLASystem {
     // currently it sticks whenever it touches another particle
     int checkStick();
 
+    //log the current number of patciles and the DLA radius 
+    void LogRadius();
+
+    //find the fractal dimention from the number of particles and the radius 
+    double FindFractalDimention(int NumParticles, double ClusterRadius); 
+
     // set the background colour for the window
     // it would be better for an OOP philosophy to make these member functions for the Window class
     // but we are being a bit lazy here
