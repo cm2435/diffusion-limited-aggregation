@@ -25,7 +25,6 @@ void DLASystem::Update() {
 	else if (numParticles < endNum) {
 		addParticleOnAddCircle();
 		setParticleActive();
-	
 	}
 	if (lastParticleIsActive == 0 || slowNotFast == 1)
 		glutPostRedisplay(); //Tell GLUT that the display has changed
@@ -215,8 +214,9 @@ void DLASystem::moveLastParticle() {
 			if (numParticles % 100 == 0 && logfile.is_open()) {
 				logfile << numParticles << " " << clusterRadius << endl;
 			}
-			string LogRow = LogRadius();
-			LogfileRows.push_back(LogRadius());
+			bool verb = false;
+			string LogRow = LogRadius(verb);
+			LogfileRows.push_back(LogRow);
 
 		}
 	}
@@ -231,7 +231,11 @@ void DLASystem::moveLastParticle() {
 }
 
 // check if the last particle should stick (to a neighbour)
-int DLASystem::checkStick() {
+int DLASystem::checkStick(double StickProb) {
+	//Stickprob should not be able to be greater than one, it is a probability
+	if (StickProb > 1.0){
+		throw std::invalid_argument( "StickProb was set greater than one" );
+	};
 	Particle *lastP = particleList[numParticles - 1];
 	int result = 0;
 	// loop over neighbours
@@ -239,8 +243,11 @@ int DLASystem::checkStick() {
 		double checkpos[2];
 		setPosNeighbour(checkpos, lastP->pos, i);
 		// if the neighbour is occupied...
-		if (readGrid(checkpos) == 1)
-			result = 1;
+		if (readGrid(checkpos) == 1){
+			if (rgen.random01() < StickProb){
+				result = 1;
+			}
+		};
 	}
 	return result;
 }
@@ -251,7 +258,7 @@ DLASystem::DLASystem(Window *set_win) {
 	cout << "creating system, gridSize " << gridSize << endl;
 	win = set_win;
 	numParticles = 0;
-	endNum = 1000;
+	endNum = 100;
 
 	// allocate memory for the grid, remember to free the memory in destructor
 	grid = new int*[gridSize];
@@ -292,12 +299,13 @@ double DLASystem::FindFractalDimention(int NumParticles, double ClusterRadius){
 	return LogNumParticles / LogRadialFraction; 
 }
 
-string DLASystem::LogRadius(){
+string DLASystem::LogRadius(bool Verbose){
 	//Function for logging
-	//cout << "number_particles:" << particleList.size() << ",";
-	//cout << "cluster_radius:" << clusterRadius << ","; 
-	//cout << "fractal_Dimention" << FindFractalDimention(particleList.size(), clusterRadius) << endl;
-
+	if (Verbose == true){
+		cout << "number_particles:" << particleList.size() << ",";
+		cout << "cluster_radius:" << clusterRadius << ","; 
+		cout << "fractal_Dimention" << FindFractalDimention(particleList.size(), clusterRadius) << endl;
+	}
 	string output = 
 		"number_particles:" + to_string(particleList.size()) + "," + 
 		"cluster_radius:" + to_string(clusterRadius) + "," + 
