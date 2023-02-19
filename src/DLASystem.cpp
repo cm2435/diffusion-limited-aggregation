@@ -55,7 +55,6 @@ void DLASystem::Reset() {
 			grid[i][j] = 0;
 		}
 	}
-
 	// setup initial condition and parameters
 	addCircle = 10;
 	killCircle = 2.0*addCircle;
@@ -182,7 +181,7 @@ void DLASystem::updateClusterRadius(double pos[]) {
 }
 
 // make a random move of the last particle in the particleList
-void DLASystem::moveLastParticle() {
+void DLASystem::moveLastParticle(double StickProb) {
 	int rr = rgen.randomInt(4);  // pick a random number in the range 0-3, which direction do we hop?
 	double newpos[2];
 
@@ -208,16 +207,16 @@ void DLASystem::moveLastParticle() {
 		// check if we stick
 		if (checkStick()) {
 			//cout << "stick" << endl;
-			setParticleInactive();  // make the particle inactive (stuck)
-			updateClusterRadius(lastP->pos);  // update the cluster radius, addCircle, etc.
-
-			if (numParticles % 100 == 0 && logfile.is_open()) {
-				logfile << numParticles << " " << clusterRadius << endl;
+			if(rgen.random01() < StickProb){
+				setParticleInactive();  // make the particle inactive (stuck)
+				updateClusterRadius(lastP->pos);  // update the cluster radius, addCircle, etc.
+				if (numParticles % 100 == 0 && logfile.is_open()) {
+					logfile << numParticles << " " << clusterRadius << endl;
+				}
+				bool verb = false;
+				string LogRow = LogRadius(verb);
+				LogfileRows.push_back(LogRow);
 			}
-			bool verb = false;
-			string LogRow = LogRadius(verb);
-			LogfileRows.push_back(LogRow);
-
 		}
 	}
 	else {
@@ -258,7 +257,7 @@ DLASystem::DLASystem(Window *set_win) {
 	cout << "creating system, gridSize " << gridSize << endl;
 	win = set_win;
 	numParticles = 0;
-	endNum = 100;
+	endNum = 10000;
 
 	// allocate memory for the grid, remember to free the memory in destructor
 	grid = new int*[gridSize];
@@ -295,7 +294,7 @@ double DLASystem::FindFractalDimention(int NumParticles, double ClusterRadius){
 	double a = 1; 
 	double LogRadialFraction = log(ClusterRadius / a);
 	double LogNumParticles = log(NumParticles);
-
+	//fractal_dim = log(N) / log(R)
 	return LogNumParticles / LogRadialFraction; 
 }
 
@@ -308,9 +307,7 @@ string DLASystem::LogRadius(bool Verbose){
 	}
 	string output = 
 		"number_particles:" + to_string(particleList.size()) + "," + 
-		"cluster_radius:" + to_string(clusterRadius) + "," + 
-		"fractal_Dimention:" + to_string(FindFractalDimention(particleList.size(), clusterRadius)) + ",";
-	
+		"cluster_radius:" + to_string(clusterRadius);	
 	return output;
 }
 

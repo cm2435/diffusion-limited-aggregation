@@ -143,11 +143,11 @@ class DLASystem {
     // this attempts to move the last particle in the List to a random neighbour
     // if the neighbour is occupied then nothing happens
     // the function also checks if the moving particle should stick.
-    void moveLastParticle();
+    void moveLastParticle(double StickProb = 0.1);
 
     // check whether the last particle should stick
     // currently it sticks whenever it touches another particle
-    int checkStick(double StickProb = 0.3);
+    int checkStick(double StickProb = 1);
 
     //log the current number of patciles and the DLA radius 
     string LogRadius(bool Verbose = true);
