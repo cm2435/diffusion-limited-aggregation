@@ -222,8 +222,8 @@ void DLASystem::moveLastParticle(double StickProb) {
 	else {
 		// if we get to here then we are trying to move to an occupied site
 		// (this should never happen as long as the sticking probability is 1.0)
-		cout << "reject " << rr << endl;
-		cout << lastP->pos[0] << " " << lastP->pos[1] << endl;
+		//cout << "reject " << rr << endl;
+		//cout << lastP->pos[0] << " " << lastP->pos[1] << endl;
 		//cout << newpos[0] << " " << newpos[1] << " " << (int)newpos[0] << endl;
 		//printOccupied();
 	}
