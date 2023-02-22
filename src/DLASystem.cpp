@@ -181,7 +181,7 @@ void DLASystem::updateClusterRadius(double pos[]) {
 }
 
 // make a random move of the last particle in the particleList
-void DLASystem::moveLastParticle(double StickProb) {
+void DLASystem::moveLastParticle() {
 	int rr = rgen.randomInt(4);  // pick a random number in the range 0-3, which direction do we hop?
 	double newpos[2];
 
@@ -207,16 +207,15 @@ void DLASystem::moveLastParticle(double StickProb) {
 		// check if we stick
 		if (checkStick()) {
 			//cout << "stick" << endl;
-			if(rgen.random01() < StickProb){
-				setParticleInactive();  // make the particle inactive (stuck)
-				updateClusterRadius(lastP->pos);  // update the cluster radius, addCircle, etc.
-				if (numParticles % 100 == 0 && logfile.is_open()) {
-					logfile << numParticles << " " << clusterRadius << endl;
-				}
-				bool verb = false;
-				string LogRow = LogRadius(verb);
-				LogfileRows.push_back(LogRow);
+			setParticleInactive();  // make the particle inactive (stuck)
+			updateClusterRadius(lastP->pos);  // update the cluster radius, addCircle, etc.
+			if (numParticles % 100 == 0 && logfile.is_open()) {
+				logfile << numParticles << " " << clusterRadius << endl;
 			}
+			bool verb = false;
+			string LogRow = LogRadius(verb);
+			LogfileRows.push_back(LogRow);
+		
 		}
 	}
 	else {
