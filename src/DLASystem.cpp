@@ -143,6 +143,8 @@ void DLASystem::setPosNeighbour(double setpos[], double pos[], int val) {
 		setpos[1] = pos[1] - 1.0;
 		break;
 	}
+	//cout << setpos[1] << *setpos << endl;
+	//cout << setpos[0] << "," << setpos[1] << endl;
 }
 
 // if the view is smaller than the kill circle then increase the view area (zoom out)
@@ -185,10 +187,17 @@ void DLASystem::moveLastParticle() {
 	int rr = rgen.randomInt(4);  // pick a random number in the range 0-3, which direction do we hop?
 	double newpos[2];
 
+	//cout << readGrid(newpos) << endl;
 	Particle *lastP = particleList[numParticles - 1];
 
 	setPosNeighbour(newpos, lastP->pos, rr);
 
+	cout << *(lastP->pos + 0) << *(lastP->pos + 1) << endl;
+	
+	//for ( int i = 0; i < 1; i++)
+    //cout << *(lastP->pos + i) << ",";
+
+	//cout << endl;
 	if (distanceFromOrigin(newpos) > killCircle) {
 		//cout << "#deleting particle" << endl;
 		setGrid(lastP->pos, 0);
