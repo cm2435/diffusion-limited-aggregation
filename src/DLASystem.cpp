@@ -313,10 +313,33 @@ string DLASystem::LogRadius(bool Verbose){
 		cout << "cluster_radius:" << clusterRadius << ","; 
 		cout << "fractal_Dimention" << FindFractalDimention(particleList.size(), clusterRadius) << endl;
 	}
+	
 	string output = 
 		"number_particles:" + to_string(particleList.size()) + "," + 
 		"cluster_radius:" + to_string(clusterRadius);	
 	return output;
+}
+
+vector<pair<int, int>> DLASystem::findSubArray(int grid[][gridSize], int row, int col, int radius) {
+    std::vector<std::pair<int, int>> nearbyDots;
+    
+    // Determine the bounds of the subarray to search
+    int minRow = std::max(0, row - radius);
+    int maxRow = std::min(gridSize - 1, row + radius);
+    int minCol = std::max(0, col - radius);
+    int maxCol = std::min(gridSize - 1, col + radius);
+    
+    // Search the subarray for nearby dots
+    for (int i = minRow; i <= maxRow; i++) {
+        for (int j = minCol; j <= maxCol; j++) {
+            if (grid[i][j] == 1 && (i != row || j != col)) {
+				cout << i << j << endl;
+                nearbyDots.push_back(std::make_pair(i, j));
+            }
+        }
+    }
+    
+    return nearbyDots;
 }
 
 // this draws the system
