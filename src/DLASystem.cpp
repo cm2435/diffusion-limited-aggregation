@@ -192,7 +192,7 @@ void DLASystem::moveLastParticle() {
 
 	setPosNeighbour(newpos, lastP->pos, rr);
 
-	cout << *(lastP->pos + 0) << *(lastP->pos + 1) << endl;
+	//cout << *(lastP->pos + 0) << *(lastP->pos + 1) << endl;
 	
 	//for ( int i = 0; i < 1; i++)
     //cout << *(lastP->pos + i) << ",";
