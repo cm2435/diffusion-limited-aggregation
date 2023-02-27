@@ -1,17 +1,26 @@
 #pragma once 
 #include <iostream>
 #include <utility> 
-
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <map>
+#include <random>
 class AbstractWalker{
     private: 
-        int seed = 5;
-    protected: 
-        //Updates the particle position one block in a random direction step
-        void updatePositionRandomwalk(double setpos[], double pos[], int val);
+        std::random_device rd;
 
         //Abstract method that defines the jump length for the generating process. May be unit length, 
         //or  may be random drawn from some kind of distribution
         virtual int generateJumpLength();
+
+    protected:
+        //rng seed
+        int seed = 5;
+ 
+        //Updates the particle position one block in a random direction step
+        void updatePositionRandomwalk(double setpos[], double pos[], int val);
+
 
         //Function that given a 'jump' radius, can choose a random jump angle and find the closest coordinate to jump to 
         std::pair<int, int> setUnitspherePosition(std::pair<int,int> currentPosition, double radius); 
@@ -26,20 +35,23 @@ class AbstractWalker{
 
 class GaussianWalker : AbstractWalker{
     private: 
-        std::pair<double, double> updateGaussianJump(double mu, double sigma);
+        std::mt19937 gen;
+        std::normal_distribution<double> dist; // mean=mu, standard deviation=sigma
+        
+        //Generate the jump length from a gaussian distribution
+        int generateJumpLength(){double sample = dist(gen); return sample;}
+
+        //Given the jump length and current position of the particle, find a random direction to jump in
+        //by drawing circle of radius jumpLength, and update the particle position to be at a random point on the circle 
+        std::pair<double, double> updateGaussianJump(std::pair<int, int> currentPosition, int jumpLength);
+
+    protected:
 
     public: 
+        //Mean and variance for a gaussian distribution of params 
         const double mu;
         const double sigma;
 
-        GaussianWalker(double mu = 0.0, double sigma = 1.0) : mu(mu), sigma(sigma) {}
-
+    GaussianWalker(double mu = 0.0, double sigma = 1.0) : mu(mu), sigma(sigma), gen(std::random_device{}()), dist(mu, sigma) {}
 };
 
-
-
-int main(void){
-    GaussianWalker foo = GaussianWalker(0.0, 4.0);
-    std::cout << "hello world" << std::endl;
-    return 0; 
-}
