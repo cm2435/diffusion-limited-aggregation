@@ -59,7 +59,7 @@ class DLASystem {
     double addRatio;    // how much bigger the addCircle should be, compared to cluster radius
     double killRatio;   // how much bigger is the killCircle, compared to the addCircle
 
-    //Function to find the sub array of main grid to find if any particles near the random walk are part of the fractal
+    //Function to find the sub array of main grid to find if any particles near the random walk are part of the
     vector<pair<int, int>> findSubArray(int grid[][gridSize], int row, int col, int radius);
 
   public:
