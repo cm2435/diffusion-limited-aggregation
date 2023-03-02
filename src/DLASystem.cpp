@@ -22,6 +22,17 @@ void DLASystem::Update() {
 
 	if (lastParticleIsActive == 1)
 		moveLastParticle();
+	
+	//At end of simulation write to output text file
+	else if(numParticles == endNum){
+		ofstream logfile("data/output" + to_string(seed) + ".txt");
+		for(auto var : LogfileRows){
+		logfile << var << endl;
+		}
+		logfile.close();
+		exit(0);
+	}
+
 	else if (numParticles < endNum) {
 		addParticleOnAddCircle();
 		setParticleActive();
@@ -252,11 +263,14 @@ int DLASystem::checkStick(double StickProb) {
 
 
 // constructor
-DLASystem::DLASystem(Window *set_win) {
+DLASystem::DLASystem(Window *set_win, int seed) {
 	cout << "creating system, gridSize " << gridSize << endl;
 	win = set_win;
 	numParticles = 0;
-	endNum = 10000;
+	endNum = 5000;
+	
+	//set rng seed 
+	setSeed(seed);
 
 	// allocate memory for the grid, remember to free the memory in destructor
 	grid = new int*[gridSize];

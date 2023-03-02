@@ -26,7 +26,7 @@ public:
 	~rnd() { delete intmax; delete real01; }
 
 	// set the random seed
-	void   setSeed(int seed) { generator.seed(seed); }
+	void   setSeed(int seed) {generator.seed(seed); }
 	// member functions for generating random double in [0,1] and random integer in [0,max-1]
 	double random01() { return (*real01)(generator); }
 	int    randomInt(int max) { return (*intmax)(generator) % max; }

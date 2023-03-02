@@ -24,6 +24,9 @@ class DLASystem {
   
     Window *win;  // window in which the system is running
 
+    //seed for rng
+    int seed;
+    
     // list of particles
     vector<Particle*> particleList;
     int numParticles;
@@ -45,8 +48,6 @@ class DLASystem {
     double viewSize;
     double drawScale;
   
-    // random number generator, class name is rnd, instance is rgen
-    rnd rgen;
   
     // output file (not used at the moment)
     ofstream logfile;
@@ -63,6 +64,9 @@ class DLASystem {
   public:
   // these are public variables and functions
 
+    // random number generator, class name is rnd, instance is rgen
+    rnd rgen;
+    
     //Vector of strings for the log file 
     vector<string> LogfileRows; 
 
@@ -83,7 +87,7 @@ class DLASystem {
     int lastParticleIsActive;
   
     // constructor
-    DLASystem(Window *set_win);
+    DLASystem(Window *set_win, int seed);
     // destructor
     ~DLASystem();
   
@@ -147,8 +151,7 @@ class DLASystem {
 
     // check whether the last particle should stick
     // currently it sticks whenever it touches another particle
-    int checkStick(double StickProb = 0.05);
-
+    int checkStick(double StickProb = 1);
     //log the current number of patciles and the DLA radius 
     string LogRadius(bool Verbose = true);
 

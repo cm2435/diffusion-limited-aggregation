@@ -4,6 +4,8 @@
 #include <vector>
 #include <math.h>
 #include <string>
+#include <string.h>
+#include <time.h>
 
 #include "../headers/DLASystem.h"
 #include "../headers/Window.h" 
@@ -23,9 +25,11 @@ namespace drawFuncs {
 DLASystem *sys;
 
 
-
 // this is just a help message
 void drawFuncs::introMessage() {
+        sys->setRunning();
+        glutTimerFunc(0, drawFuncs::update, 0);
+        sys->setFast();
         cout << "Keys (while in graphics window):" << endl << "  q or e to quit (or exit)" << endl;
         cout << "  h to print this message (help)" << endl;
         cout << "  u for a single update" << endl;
@@ -93,7 +97,8 @@ void drawFuncs::handleKeypress(unsigned char key, int x, int y) {
     sys->LogRadius();
     break;
   case 'l':
-    ofstream logfile("output.txt");
+    int random_run = sys->rgen.randomInt(1000000000);
+    ofstream logfile("output" + to_string(random_run) + ".txt");
     for(auto var : sys->LogfileRows){
       logfile << var << endl;
     }
@@ -147,27 +152,28 @@ void drawFuncs::display() {
 int main(int argc, char **argv) {
   // turn on glut
 	glutInit(&argc, argv);
-
   int window_size[] = { 480,480 };
   string window_title("simple DLA simulation");
 
   // create a window
   Window *win = new Window(window_size,window_title);
+  //Check that seed is actually passed to program
+	if (argc == 1){
+		throw std::invalid_argument( "No command line args were passed. Please pass an int for an RNG seed for the first argument" );
+	};
+  // this is the seed for the random numbers
+  int seed = std::stoi(argv[1]);
+  cout << "setting seed " << seed << endl;
 
   // create the system
-  sys = new DLASystem(win);
-  
-
-  // this is the seed for the random numbers
-  int seed = 6;
-  cout << "setting seed " << seed << endl;
-  sys->setSeed(seed);
+  sys = new DLASystem(win, seed);
   
   // print the "help" message to the console
   drawFuncs::introMessage();
-  
+
   // tell openGL how to redraw the screen and respond to the keyboard
 	glutDisplayFunc( drawFuncs::display );
+
 	glutKeyboardFunc(drawFuncs::handleKeypress );
   
   // tell openGL to do its first update after waiting 10ms
