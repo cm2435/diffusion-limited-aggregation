@@ -267,7 +267,7 @@ DLASystem::DLASystem(Window *set_win, int seed) {
 	cout << "creating system, gridSize " << gridSize << endl;
 	win = set_win;
 	numParticles = 0;
-	endNum = 5000;
+	endNum = 10000;
 	
 	//set rng seed 
 	setSeed(seed);
