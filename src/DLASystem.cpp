@@ -62,6 +62,7 @@ std::pair<double, double> findVectorMean(std::vector<std::pair<double,double>> V
 	}
 	else {return std::make_pair(0, 0);}
 }
+
 //Reformat the pair of vector components to a vector of size 4 which
 //is the RNG weights for random walking
 std::vector<double> convertVectorRngProbability(std::pair<double, double> vectorMean){
@@ -81,13 +82,13 @@ void DLASystem::Update() {
 	//std::vector<std::pair<int, int>> foo = generateRing(std::make_pair(0.0,0.0), 5, grid);
 	//std::cout << "Foo size: " << foo.size() << std::endl;
     
-	std::vector<std::pair<int, int>> pairs = generateRing(std::make_pair(700, 700), 150, grid);
+	/*std::vector<std::pair<int, int>> pairs = generateRing(std::make_pair(700, 700), 150, grid);
 	std::vector<std::pair<double, double>> avg;
 	for (const auto& pair : pairs) {
 		avg.push_back(findForceVector(std::make_pair(800, 800), pair));
     }
 	std::pair<double, double> averageForce = findVectorMean(avg);
-
+	*/
 	//cout << averageForce.first << averageForce.second << endl;
 
 	if (lastParticleIsActive == 1) {
@@ -96,6 +97,8 @@ void DLASystem::Update() {
 	}
 	//At end of simulation write to output text file
 	else if(numParticles == endNum){
+		string fp = "data/output" + to_string(seed) + ".txt";
+		std::cout << "writing simulation data for seed " << to_string(seed) << " to" << fp << std::endl;
 		ofstream logfile("data/output" + to_string(seed) + ".txt");
 		for(auto var : LogfileRows){
 		logfile << var << endl;
@@ -335,14 +338,15 @@ int DLASystem::checkStick(double StickProb) {
 
 
 // constructor
-DLASystem::DLASystem(Window *set_win, int seed) {
+DLASystem::DLASystem(Window *set_win, int seed_) {
 	cout << "creating system, gridSize " << gridSize << endl;
 	win = set_win;
 	numParticles = 0;
 	endNum = 10000;
 	
 	//set rng seed 
-	setSeed(seed);
+	seed = seed_;
+	setSeed(seed_);
 
 	// allocate memory for the grid, remember to free the memory in destructor
 	grid = new int*[gridSize];

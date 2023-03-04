@@ -13,6 +13,7 @@ private:
 	int genMax;
 	std::uniform_int_distribution<int> *intmax;
 	std::uniform_real_distribution<double> *real01;
+	std::random_device rd;
 
 public:
 	// constructor
@@ -27,7 +28,30 @@ public:
 
 	// set the random seed
 	void   setSeed(int seed) {generator.seed(seed); }
+	
 	// member functions for generating random double in [0,1] and random integer in [0,max-1]
 	double random01() { return (*real01)(generator); }
-	int    randomInt(int max) { return (*intmax)(generator) % max; }
+	
+	//generate a random int in range 0-intmax
+	int randomInt(int max) { return (*intmax)(generator) % max; }
+
+	//Generate a random int in range weights.size() with prob of weights[i]/sum(weights)
+	int weightedRandInt(const std::vector<int>& weights) {
+		int totalWeight = 0;
+		for (int weight : weights) {
+			totalWeight += weight;
+		}
+		std::uniform_int_distribution<> dis(0, totalWeight - 1);
+		std::mt19937 gen(rd());
+
+		int randomNum = dis(gen);
+		int index = 0;
+		while (randomNum >= weights[index]) {
+			randomNum -= weights[index];
+			index++;
+		}
+
+		return index;
+	}
+	
 };

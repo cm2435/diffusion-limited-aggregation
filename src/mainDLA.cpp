@@ -40,6 +40,8 @@ void drawFuncs::introMessage() {
         cout << "  r to clear everything (reset)" << endl;
         cout << "  z to pause and zoom in" << endl;
         cout << "  w or b to change background colour to white or black" << endl;
+        cout << "" << endl;
+        cout << "" << endl;
 }
 
 // openGL function deals with the keyboard
@@ -185,5 +187,7 @@ int main(int argc, char **argv) {
   // start the openGL stuff
 
  	glutMainLoop();
+  delete sys;
   return 0;
+
 }
