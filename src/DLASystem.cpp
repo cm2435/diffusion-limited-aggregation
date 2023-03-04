@@ -4,6 +4,7 @@
 #include <math.h>
 #include <string.h>
 #include "../headers/DLASystem.h"
+#include<cmath>
 
 // colors
 namespace colours {
@@ -15,14 +16,75 @@ namespace colours {
 }
 
 
+std::vector<std::pair<int, int>> generateRing(std::pair<int, int> particlePosition, int radius, int** grid) {
+    std::vector<std::pair<int, int>> coordinatePositiveRing; // initialize number of points in the ring to zero
+	int x = particlePosition.first;
+	int y = particlePosition.second; 
+
+    // loop over a square region of width 2r+1 centered at (x, y)
+    for (int i = x - radius; i <= x + radius; i++) {
+        for (int j = y - radius; j <= y + radius; j++) {
+            // check if (i, j) is within the ring
+            if (std::sqrt((i - x)*(i - x) + (j - y)*(j - y)) > radius-1 && std::sqrt((i - x)*(i - x) + (j - y)*(j - y)) < radius+1) {
+                // check if (i, j) is within the bounds of the grid
+                if (i >= 0 && i < 1600 && j >= 0 && j < 1600) {
+                    //Check if the array position is 1
+					if(grid[i][j] == 1 || grid[j][i] == 1){
+						coordinatePositiveRing.emplace_back(i , j);
+					}
+                }
+            }
+        }
+	}
+	return coordinatePositiveRing;
+}
+std::pair<double, double> findForceVector(std::pair<int,int> randomwalkerPosition, std::pair<int,int> fractalParticlePosition){
+	float xDiff = randomwalkerPosition.first - fractalParticlePosition.first;
+	float yDiff = randomwalkerPosition.second - fractalParticlePosition.second;
+	float totalDiff = sqrt(pow(xDiff,2) + pow(yDiff,2));
+
+	float forceVector = 1 / pow(totalDiff, 2);
+	std::pair<float, float> forceCoords = std::make_pair(forceVector * xDiff / totalDiff, forceVector * yDiff / totalDiff);
+	return forceCoords;
+}
+
+std::pair<double, double> findVectorMean(std::vector<std::pair<double,double>> VectorList){
+	vector<double> xVals, yVals; 
+	for (const auto& vector : VectorList){
+		//cout << vector.first << vector.second << endl << "bar" << endl;
+		xVals.push_back(vector.first);
+		yVals.push_back(vector.second);
+	}
+	if (xVals.size() != 0){
+		float xAverage = accumulate(xVals.begin(), xVals.end(), 0.0/ xVals.size());
+		float yAverage = accumulate(yVals.begin(), yVals.end(), 0.0/ yVals.size());
+		return std::make_pair(xAverage, yAverage);
+	}
+	else {return std::make_pair(0, 0);}
+}
+
+
 // this function gets called every step,
 //   if there is an active particle then it gets moved,
 //   if not then add a particle
 void DLASystem::Update() {
 
-	if (lastParticleIsActive == 1)
+	//std::vector<std::pair<int, int>> foo = generateRing(std::make_pair(0.0,0.0), 5, grid);
+	//std::cout << "Foo size: " << foo.size() << std::endl;
+    
+	std::vector<std::pair<int, int>> pairs = generateRing(std::make_pair(700, 700), 150, grid);
+	std::vector<std::pair<double, double>> avg;
+	for (const auto& pair : pairs) {
+		avg.push_back(findForceVector(std::make_pair(800, 800), pair));
+    }
+	std::pair<double, double> averageForce = findVectorMean(avg);
+
+	//cout << averageForce.first << averageForce.second << endl;
+
+	if (lastParticleIsActive == 1) {
 		moveLastParticle();
-	
+
+	}
 	//At end of simulation write to output text file
 	else if(numParticles == endNum){
 		ofstream logfile("data/output" + to_string(seed) + ".txt");
@@ -199,6 +261,7 @@ void DLASystem::moveLastParticle() {
 	Particle *lastP = particleList[numParticles - 1];
 
 	setPosNeighbour(newpos, lastP->pos, rr);
+
 
 	if (distanceFromOrigin(newpos) > killCircle) {
 		//cout << "#deleting particle" << endl;
