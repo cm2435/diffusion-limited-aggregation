@@ -66,8 +66,8 @@ std::pair<double, double> findVectorMean(std::vector<std::pair<double,double>> V
 //is the RNG weights for random walking
 std::vector<double> convertVectorRngProbability(std::pair<double, double> vectorMean){
 	std::vector<double> vectorProb = {0.25, 0.25, 0.25, 0.25};
-	vectorProb[0] = vectorProb[0] - vectorMean.first;
-	vectorProb[1] = vectorProb[0] + vectorMean.first;
+	vectorProb[0] = vectorProb[0] + vectorMean.first;
+	vectorProb[1] = vectorProb[0] - vectorMean.first;
 	vectorProb[2] = vectorProb[0] + vectorMean.second;
 	vectorProb[3] = vectorProb[0] - vectorMean.second;
 	return vectorProb;
