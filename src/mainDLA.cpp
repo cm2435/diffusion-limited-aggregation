@@ -160,15 +160,16 @@ int main(int argc, char **argv) {
   // create a window
   Window *win = new Window(window_size,window_title);
   //Check that seed is actually passed to program
-	if (argc == 1){
-		throw std::invalid_argument( "No command line args were passed. Please pass an int for an RNG seed for the first argument" );
+	if (argc !=3){
+		throw std::invalid_argument("Incorrect number of command line passed. Please pass one seed and then one saturation mechanic");
 	};
   // this is the seed for the random numbers
   int seed = std::stoi(argv[1]);
   cout << "setting seed " << seed << endl;
 
+  string condition = argv[2];
   // create the system
-  sys = new DLASystem(win, seed);
+  sys = new DLASystem(win, seed, condition);
   
   // print the "help" message to the console
   drawFuncs::introMessage();

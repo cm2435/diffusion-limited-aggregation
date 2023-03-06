@@ -14,6 +14,7 @@
 #include "Window.h"
 #include "Particle.h"
 #include "rnd.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -26,7 +27,10 @@ class DLASystem {
 
     //seed for rng
     int seed;
-    
+
+    //random walk condition type
+    string condition;
+
     // list of particles
     vector<Particle*> particleList;
     int numParticles;
@@ -87,7 +91,7 @@ class DLASystem {
     int lastParticleIsActive;
   
     // constructor
-    DLASystem(Window *set_win, int seed);
+    DLASystem(Window *set_win, int seed, string condition);
     // destructor
     ~DLASystem();
   

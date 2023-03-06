@@ -5,7 +5,7 @@
 #include <string.h>
 #include "../headers/DLASystem.h"
 #include<cmath>
-
+#include<algorithm>
 // colors
 namespace colours {
 	GLfloat blue[] = { 0.1, 0.3, 0.9, 1.0 };   // blue
@@ -79,21 +79,8 @@ std::vector<double> convertVectorRngProbability(std::pair<double, double> vector
 //   if not then add a particle
 void DLASystem::Update() {
 
-	//std::vector<std::pair<int, int>> foo = generateRing(std::make_pair(0.0,0.0), 5, grid);
-	//std::cout << "Foo size: " << foo.size() << std::endl;
-    
-	/*std::vector<std::pair<int, int>> pairs = generateRing(std::make_pair(700, 700), 150, grid);
-	std::vector<std::pair<double, double>> avg;
-	for (const auto& pair : pairs) {
-		avg.push_back(findForceVector(std::make_pair(800, 800), pair));
-    }
-	std::pair<double, double> averageForce = findVectorMean(avg);
-	*/
-	//cout << averageForce.first << averageForce.second << endl;
-
 	if (lastParticleIsActive == 1) {
 		moveLastParticle();
-
 	}
 	//At end of simulation write to output text file
 	else if(numParticles == endNum){
@@ -267,10 +254,31 @@ void DLASystem::updateClusterRadius(double pos[]) {
 
 // make a random move of the last particle in the particleList
 void DLASystem::moveLastParticle() {
-	int rr = rgen.randomInt(4);  // pick a random number in the range 0-3, which direction do we hop?
 	double newpos[2];
-
 	Particle *lastP = particleList[numParticles - 1];
+
+	int rr = rgen.randomInt(4);
+
+	if(condition == "vanilla"){
+		int rr = rgen.randomInt(4);
+	}
+	else if(condition == "attractive_particle"){
+	}
+	std::pair<int, int> position = std::make_pair(lastP->pos[0], lastP->pos[1]);
+	std::vector<std::pair<int, int>> foo = generateRing(position, 20, grid);
+
+	cout << foo.size() << endl;
+	//std::vector<std::pair<int, int>> foo = generateRing(std::make_pair(0.0,0.0), 5, grid);
+	//std::cout << "Foo size: " << foo.size() << std::endl;
+    
+	/*std::vector<std::pair<int, int>> pairs = generateRing(std::make_pair(700, 700), 150, grid);
+	std::vector<std::pair<double, double>> avg;
+	for (const auto& pair : pairs) {
+		avg.push_back(findForceVector(std::make_pair(800, 800), pair));
+    }
+	std::pair<double, double> averageForce = findVectorMean(avg);
+	*/
+	//cout << averageForce.first << averageForce.second << endl;
 
 	setPosNeighbour(newpos, lastP->pos, rr);
 
@@ -338,7 +346,7 @@ int DLASystem::checkStick(double StickProb) {
 
 
 // constructor
-DLASystem::DLASystem(Window *set_win, int seed_) {
+DLASystem::DLASystem(Window *set_win, int seed_, string condition_) {
 	cout << "creating system, gridSize " << gridSize << endl;
 	win = set_win;
 	numParticles = 0;
@@ -347,6 +355,17 @@ DLASystem::DLASystem(Window *set_win, int seed_) {
 	//set rng seed 
 	seed = seed_;
 	setSeed(seed_);
+
+	//Set the random walk condition 
+	/*if (std::find(allowedConditions.begin(), allowedConditions.end(), condition_) != allowedConditions.end()){
+		condition = condition_;
+	}
+	else{
+		throw std::invalid_argument("Random walk type passed was not in allowed list. Type passed was" + condition_);
+	};
+	*/
+	
+	condition = condition_;
 
 	// allocate memory for the grid, remember to free the memory in destructor
 	grid = new int*[gridSize];
