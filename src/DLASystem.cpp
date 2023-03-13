@@ -68,9 +68,9 @@ std::pair<double, double> findVectorMean(std::vector<std::pair<double,double>> V
 std::vector<double> convertVectorRngProbability(std::pair<double, double> vectorMean){
 	std::vector<double> vectorProb = {0.25, 0.25, 0.25, 0.25};
 	vectorProb[0] = vectorProb[0] + vectorMean.first;
-	vectorProb[1] = vectorProb[0] - vectorMean.first;
-	vectorProb[2] = vectorProb[0] + vectorMean.second;
-	vectorProb[3] = vectorProb[0] - vectorMean.second;
+	vectorProb[1] = vectorProb[1] - vectorMean.first;
+	vectorProb[2] = vectorProb[2] + vectorMean.second;
+	vectorProb[3] = vectorProb[3] - vectorMean.second;
 	return vectorProb;
 }
 
@@ -84,7 +84,7 @@ void DLASystem::Update() {
 	}
 	//At end of simulation write to output text file
 	else if(numParticles == endNum){
-		string fp = "data/output" + to_string(seed) + ".txt";
+		string fp = "data/hele_shaw/output" + to_string(seed) + ".txt";
 		std::cout << "writing simulation data for seed " << to_string(seed) << " to" << fp << std::endl;
 		ofstream logfile("data/output" + to_string(seed) + ".txt");
 		for(auto var : LogfileRows){
@@ -259,15 +259,15 @@ void DLASystem::moveLastParticle() {
 
 	int rr = rgen.randomInt(4);
 
-	if(condition == "vanilla"){
-		int rr = rgen.randomInt(4);
-	}
-	else if(condition == "attractive_particle"){
-	}
-	std::pair<int, int> position = std::make_pair(lastP->pos[0], lastP->pos[1]);
-	std::vector<std::pair<int, int>> foo = generateRing(position, 20, grid);
+	//if(condition == "vanilla"){
+	//	int rr = rgen.randomInt(4);
+	//}
+	//else if(condition == "attractive_particle"){
+	//}
+	//std::pair<int, int> position = std::make_pair(lastP->pos[0], lastP->pos[1]);
+	//std::vector<std::pair<int, int>> foo = generateRing(position, 20, grid);
 
-	cout << foo.size() << endl;
+	//cout << foo.size() << endl;
 	//std::vector<std::pair<int, int>> foo = generateRing(std::make_pair(0.0,0.0), 5, grid);
 	//std::cout << "Foo size: " << foo.size() << std::endl;
     
@@ -350,7 +350,7 @@ DLASystem::DLASystem(Window *set_win, int seed_, string condition_) {
 	cout << "creating system, gridSize " << gridSize << endl;
 	win = set_win;
 	numParticles = 0;
-	endNum = 10000;
+	endNum = 5000;
 	
 	//set rng seed 
 	seed = seed_;

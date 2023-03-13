@@ -1,0 +1,7 @@
+number_particles:2,cluster_radius:1.000000
+number_particles:3,cluster_radius:2.000000
+number_particles:4,cluster_radius:2.000000
+number_particles:5,cluster_radius:2.000000
+number_particles:6,cluster_radius:2.000000
+number_particles:7,cluster_radius:2.000000
+number_particles:8,cluster_radius:2.236068
