@@ -1,6 +1,6 @@
 #pragma once
 #include <random>
-
+#include <iostream>
 // ... don't worry how this all works
 // ... member functions that you may want to use:
 //       random01() returns a random double between 0 and 1
@@ -36,19 +36,27 @@ public:
 	int randomInt(int max) { return (*intmax)(generator) % max; }
 
 	//Generate a random int in range weights.size() with prob of weights[i]/sum(weights)
-	int weightedRandInt(const std::vector<int>& weights) {
-		int totalWeight = 0;
-		for (int weight : weights) {
-			totalWeight += weight;
+	int weightedRandInt(const std::vector<double>& weights)
+	{
+		// Calculate the total weight of the vector
+		double total_weight = 0.0f;
+		for (float weight : weights) {
+			total_weight += weight;
 		}
-		std::uniform_int_distribution<> dis(0, totalWeight - 1);
-		std::mt19937 gen(rd());
 
-		int randomNum = dis(gen);
+		// Generate a random number between 0 and the total weight
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<double> dis(0.0f, total_weight);
+		double random_weight = dis(gen);
+
+		// Iterate through the weights, subtracting each from the random weight
+		// until we find the index of the selected weight
 		int index = 0;
-		while (randomNum >= weights[index]) {
-			randomNum -= weights[index];
+		double weight_sum = weights[0];
+		while (random_weight > weight_sum && index < weights.size() - 1) {
 			index++;
+			weight_sum += weights[index];
 		}
 
 		return index;

@@ -1,3 +1,0 @@
-number_particles:2,cluster_radius:1.000000
-number_particles:3,cluster_radius:2.000000
-number_particles:4,cluster_radius:2.000000

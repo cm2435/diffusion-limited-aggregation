@@ -15,21 +15,53 @@ namespace colours {
 	GLfloat darkGrey[] = { 0.2, 0.2, 0.2, 1.0 };     // green
 }
 
+std::vector<std::pair<int, int>> findOnes(int** arr) {
+    std::vector<std::pair<int, int>> ones;
+    for (int i = 0; i < 1600; i++) {
+        for (int j = 0; j < 1600; j++) {
+            if (arr[i][j] == 1) {
+                ones.push_back(std::make_pair(i, j));
+            }
+        }
+    }
+    return ones;
+}
 
-std::vector<std::pair<int, int>> generateRing(std::pair<int, int> particlePosition, int radius, int** grid) {
+/*std::vector<std::pair<int, int>> DLASystem::generateRing(std::pair<int, int> particlePosition, int radius, int** grid) {
     std::vector<std::pair<int, int>> coordinatePositiveRing; // initialize number of points in the ring to zero
 	int x = particlePosition.first;
 	int y = particlePosition.second; 
 
     // loop over a square region of width 2r+1 centered at (x, y)
+	
+	for (int i = 0; i < particleList.size(); ++i){
+		Particle *particle = particleList[i];
+		int clusterX = particle->pos[0]; 
+		int clusterY = particle->pos[1];
+		cout << clusterX << clusterY << endl;
+		if (std::sqrt((clusterX - x)*(clusterX - x) + (clusterY - y)*(clusterY - y)) < radius*radius){
+			coordinatePositiveRing.emplace_back(clusterX, clusterY);
+		}
+	}
+	return coordinatePositiveRing;
+}
+*/
+
+
+std::vector<std::pair<int, int>> DLASystem::generateRing(std::pair<int, int> particlePosition, int radius, int** grid) {
+    std::vector<std::pair<int, int>> coordinatePositiveRing; // initialize number of points in the ring to zero
+	int x = particlePosition.first + 800;
+	int y = particlePosition.second + 800; 
+
+    // loop over a square region of width 2r+1 centered at (x, y)
     for (int i = x - radius; i <= x + radius; i++) {
         for (int j = y - radius; j <= y + radius; j++) {
             // check if (i, j) is within the ring
-            if (std::sqrt((i - x)*(i - x) + (j - y)*(j - y)) > radius-1 && std::sqrt((i - x)*(i - x) + (j - y)*(j - y)) < radius+1) {
+            if (std::sqrt((i - x)*(i - x) + (j - y)*(j - y)) < radius) {
                 // check if (i, j) is within the bounds of the grid
                 if (i >= 0 && i < 1600 && j >= 0 && j < 1600) {
                     //Check if the array position is 1
-					if(grid[i][j] == 1 || grid[j][i] == 1){
+					if(grid[i][j] == 1){
 						coordinatePositiveRing.emplace_back(i , j);
 					}
                 }
@@ -38,17 +70,24 @@ std::vector<std::pair<int, int>> generateRing(std::pair<int, int> particlePositi
 	}
 	return coordinatePositiveRing;
 }
-std::pair<double, double> findForceVector(std::pair<int,int> randomwalkerPosition, std::pair<int,int> fractalParticlePosition){
+
+std::pair<double, double> DLASystem::findForceVector(std::pair<int,int> randomwalkerPosition, std::pair<int,int> fractalParticlePosition){
 	float xDiff = randomwalkerPosition.first - fractalParticlePosition.first;
 	float yDiff = randomwalkerPosition.second - fractalParticlePosition.second;
 	float totalDiff = sqrt(pow(xDiff,2) + pow(yDiff,2));
 
-	float forceVector = 1 / pow(totalDiff, 2);
+	float forceVector = 10000 / totalDiff;
 	std::pair<float, float> forceCoords = std::make_pair(forceVector * xDiff / totalDiff, forceVector * yDiff / totalDiff);
+	//Particle force is compared to itself in DLA::System generateRing, this has distance 0 and thus inf force. This should be 0, so reset
+	if (isnan(forceCoords.first) || isnan(forceCoords.second)){
+		forceCoords.first = 0.0; 
+		forceCoords.second = 0.0;
+	} 
+	//cout << forceCoords.first << forceCoords.second << endl;
 	return forceCoords;
 }
 
-std::pair<double, double> findVectorMean(std::vector<std::pair<double,double>> VectorList){
+std::pair<double, double> DLASystem::findVectorMean(std::vector<std::pair<double,double>> VectorList){
 	vector<double> xVals, yVals; 
 	for (const auto& vector : VectorList){
 		//cout << vector.first << vector.second << endl << "bar" << endl;
@@ -65,7 +104,7 @@ std::pair<double, double> findVectorMean(std::vector<std::pair<double,double>> V
 
 //Reformat the pair of vector components to a vector of size 4 which
 //is the RNG weights for random walking
-std::vector<double> convertVectorRngProbability(std::pair<double, double> vectorMean){
+std::vector<double> DLASystem::convertVectorRngProbability(std::pair<double, double> vectorMean){
 	std::vector<double> vectorProb = {0.25, 0.25, 0.25, 0.25};
 	vectorProb[0] = vectorProb[0] + vectorMean.first;
 	vectorProb[1] = vectorProb[1] - vectorMean.first;
@@ -256,14 +295,27 @@ void DLASystem::updateClusterRadius(double pos[]) {
 void DLASystem::moveLastParticle() {
 	double newpos[2];
 	Particle *lastP = particleList[numParticles - 1];
-
 	int rr = rgen.randomInt(4);
 
-	//if(condition == "vanilla"){
-	//	int rr = rgen.randomInt(4);
-	//}
-	//else if(condition == "attractive_particle"){
-	//}
+	//std::pair<int, int> position = std::make_pair(lastP->pos[0], lastP->pos[1]);
+	//std::vector<std::pair<int, int>> x = generateRing(position, 5, grid);
+	//cout << x.size() << endl;
+
+	if(condition == "force_vector"){
+		std::pair<int, int> position = std::make_pair(lastP->pos[0], lastP->pos[1]);
+		//cout << position.first << position.second << endl;
+		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 5, grid);
+		std::vector<std::pair<double, double>> forceVectors;
+		for(int i = 0; i < nearbyParticles.size(); ++i){
+			std::pair<double, double> Vector = findForceVector(nearbyParticles[i], position);
+			forceVectors.push_back(Vector);
+		}
+		std::pair<double, double> vectorMean = findVectorMean(forceVectors);
+		std::vector<double> vectorMeanFourD = convertVectorRngProbability(vectorMean);
+		int rr = rgen.weightedRandInt(vectorMeanFourD);
+		//cout << vectorMean.first << "," << vectorMean.second << endl;
+	}
+
 	//std::pair<int, int> position = std::make_pair(lastP->pos[0], lastP->pos[1]);
 	//std::vector<std::pair<int, int>> foo = generateRing(position, 20, grid);
 

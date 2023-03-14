@@ -64,7 +64,17 @@ class DLASystem {
     double addRatio;    // how much bigger the addCircle should be, compared to cluster radius
     double killRatio;   // how much bigger is the killCircle, compared to the addCircle
 
-  
+    //check the local ring around the random walker to find any particles within radius r 
+    std::vector<std::pair<int, int>> generateRing(std::pair<int, int> particlePosition, int radius, int** grid);
+
+    //Calculate the force weighting between a particle in the fractal and the random walker 
+    std::pair<double, double> findForceVector(std::pair<int,int> randomwalkerPosition, std::pair<int,int> fractalParticlePosition);
+
+    //Given a series of force vectors find their mean  
+    std::pair<double, double> findVectorMean(std::vector<std::pair<double,double>> VectorList);
+
+    //Convert a force 'vector' into a length 4 weight vector for the RNG generation
+    std::vector<double> convertVectorRngProbability(std::pair<double, double> vectorMean);
   public:
   // these are public variables and functions
 
@@ -155,7 +165,7 @@ class DLASystem {
 
     // check whether the last particle should stick
     // currently it sticks whenever it touches another particle
-    int checkStick(double StickProb = 0.1);
+    int checkStick(double StickProb = 1.0);
     //log the current number of patciles and the DLA radius 
     string LogRadius(bool Verbose = true);
 

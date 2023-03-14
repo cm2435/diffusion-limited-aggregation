@@ -96,7 +96,7 @@ void drawFuncs::handleKeypress(unsigned char key, int x, int y) {
     //sys->Update(logfile);
     break;
   case 'o':
-    sys->LogRadius();
+    sys->LogRadius(true);
     break;
   case 'l':
     int random_run = sys->rgen.randomInt(1000000000);
