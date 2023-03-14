@@ -4,6 +4,8 @@
 #include <vector>
 #include <math.h>
 #include <string>
+#include <string.h>
+#include <time.h>
 
 #include "../headers/DLASystem.h"
 #include "../headers/Window.h" 
@@ -23,9 +25,11 @@ namespace drawFuncs {
 DLASystem *sys;
 
 
-
 // this is just a help message
 void drawFuncs::introMessage() {
+        sys->setRunning();
+        glutTimerFunc(0, drawFuncs::update, 0);
+        sys->setFast();
         cout << "Keys (while in graphics window):" << endl << "  q or e to quit (or exit)" << endl;
         cout << "  h to print this message (help)" << endl;
         cout << "  u for a single update" << endl;
@@ -36,6 +40,8 @@ void drawFuncs::introMessage() {
         cout << "  r to clear everything (reset)" << endl;
         cout << "  z to pause and zoom in" << endl;
         cout << "  w or b to change background colour to white or black" << endl;
+        cout << "" << endl;
+        cout << "" << endl;
 }
 
 // openGL function deals with the keyboard
@@ -90,10 +96,11 @@ void drawFuncs::handleKeypress(unsigned char key, int x, int y) {
     //sys->Update(logfile);
     break;
   case 'o':
-    sys->LogRadius();
+    sys->LogRadius(true);
     break;
   case 'l':
-    ofstream logfile("output.txt");
+    int random_run = sys->rgen.randomInt(1000000000);
+    ofstream logfile("output" + to_string(random_run) + ".txt");
     for(auto var : sys->LogfileRows){
       logfile << var << endl;
     }
@@ -147,27 +154,29 @@ void drawFuncs::display() {
 int main(int argc, char **argv) {
   // turn on glut
 	glutInit(&argc, argv);
-
   int window_size[] = { 480,480 };
   string window_title("simple DLA simulation");
 
   // create a window
   Window *win = new Window(window_size,window_title);
-
-  // create the system
-  sys = new DLASystem(win);
-  
-
+  //Check that seed is actually passed to program
+	if (argc !=3){
+		throw std::invalid_argument("Incorrect number of command line passed. Please pass one seed and then one saturation mechanic");
+	};
   // this is the seed for the random numbers
-  int seed = 6;
+  int seed = std::stoi(argv[1]);
   cout << "setting seed " << seed << endl;
-  sys->setSeed(seed);
+
+  string condition = argv[2];
+  // create the system
+  sys = new DLASystem(win, seed, condition);
   
   // print the "help" message to the console
   drawFuncs::introMessage();
-  
+
   // tell openGL how to redraw the screen and respond to the keyboard
 	glutDisplayFunc( drawFuncs::display );
+
 	glutKeyboardFunc(drawFuncs::handleKeypress );
   
   // tell openGL to do its first update after waiting 10ms
@@ -179,5 +188,7 @@ int main(int argc, char **argv) {
   // start the openGL stuff
 
  	glutMainLoop();
+  delete sys;
   return 0;
+
 }

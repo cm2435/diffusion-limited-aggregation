@@ -14,6 +14,7 @@
 #include "Window.h"
 #include "Particle.h"
 #include "rnd.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -23,6 +24,12 @@ class DLASystem {
   // these are private variables and functions that the user will not see
   
     Window *win;  // window in which the system is running
+
+    //seed for rng
+    int seed;
+
+    //random walk condition type
+    string condition;
 
     // list of particles
     vector<Particle*> particleList;
@@ -45,8 +52,6 @@ class DLASystem {
     double viewSize;
     double drawScale;
   
-    // random number generator, class name is rnd, instance is rgen
-    rnd rgen;
   
     // output file (not used at the moment)
     ofstream logfile;
@@ -59,12 +64,24 @@ class DLASystem {
     double addRatio;    // how much bigger the addCircle should be, compared to cluster radius
     double killRatio;   // how much bigger is the killCircle, compared to the addCircle
 
-    //Function to find the sub array of main grid to find if any particles near the random walk are part of the
-    vector<pair<int, int>> findSubArray(int grid[][gridSize], int row, int col, int radius);
+    //check the local ring around the random walker to find any particles within radius r 
+    std::vector<std::pair<int, int>> generateRing(std::pair<int, int> particlePosition, int radius, int** grid);
 
+    //Calculate the force weighting between a particle in the fractal and the random walker 
+    std::pair<double, double> findForceVector(std::pair<int,int> randomwalkerPosition, std::pair<int,int> fractalParticlePosition);
+
+    //Given a series of force vectors find their mean  
+    std::pair<double, double> findVectorMean(std::vector<std::pair<double,double>> VectorList);
+
+    //Convert a force 'vector' into a length 4 weight vector for the RNG generation
+    std::vector<double> convertVectorRngProbability(std::pair<double, double> vectorMean);
+  
   public:
   // these are public variables and functions
 
+    // random number generator, class name is rnd, instance is rgen
+    rnd rgen;
+    
     //Vector of strings for the log file 
     vector<string> LogfileRows; 
 
@@ -85,7 +102,7 @@ class DLASystem {
     int lastParticleIsActive;
   
     // constructor
-    DLASystem(Window *set_win);
+    DLASystem(Window *set_win, int seed, string condition);
     // destructor
     ~DLASystem();
   
@@ -149,8 +166,7 @@ class DLASystem {
 
     // check whether the last particle should stick
     // currently it sticks whenever it touches another particle
-    int checkStick(double StickProb = 1);
-
+    int checkStick(double StickProb = 1.0);
     //log the current number of patciles and the DLA radius 
     string LogRadius(bool Verbose = true);
 
