@@ -166,7 +166,7 @@ class DLASystem {
 
     // check whether the last particle should stick
     // currently it sticks whenever it touches another particle
-    int checkStick(double StickProb = 1.0);
+    int checkStick(double StickProb = 0.1);
     //log the current number of patciles and the DLA radius 
     string LogRadius(bool Verbose = true);
 

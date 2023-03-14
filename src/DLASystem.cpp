@@ -123,7 +123,7 @@ void DLASystem::Update() {
 	}
 	//At end of simulation write to output text file
 	else if(numParticles == endNum){
-		string fp = "data/vanilla/output" + to_string(seed) + ".txt";
+		string fp = "data/hele_shaw/output" + to_string(seed) + ".txt";
 		std::cout << "writing simulation data for seed " << to_string(seed) << " to" << fp << std::endl;
 		ofstream logfile(fp);
 		for(auto var : LogfileRows){

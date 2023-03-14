@@ -1,0 +1,14 @@
+number_particles:2,cluster_radius:1.000000
+number_particles:3,cluster_radius:2.000000
+number_particles:4,cluster_radius:2.236068
+number_particles:5,cluster_radius:2.236068
+number_particles:6,cluster_radius:2.828427
+number_particles:7,cluster_radius:2.828427
+number_particles:8,cluster_radius:3.605551
+number_particles:9,cluster_radius:4.242641
+number_particles:10,cluster_radius:4.242641
+number_particles:11,cluster_radius:4.242641
+number_particles:12,cluster_radius:4.242641
+number_particles:13,cluster_radius:4.472136
+number_particles:14,cluster_radius:4.472136
+number_particles:15,cluster_radius:4.472136
