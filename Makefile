@@ -10,7 +10,7 @@
 
 CXX     = g++
 
-CXXFLAGS = -Wall -Wextra -g -O0 
+CXXFLAGS = -Wall -Wextra -g -O3
 
 IFLAGS = -I/usr/local/include -I/usr/include
 
