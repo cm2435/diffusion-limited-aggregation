@@ -10,7 +10,7 @@
 
 CXX     = g++
 
-CXXFLAGS = -Wall -Wextra -g -O3
+CXXFLAGS = -Wall -Wextra -g -O3 -fno-math-errno
 
 IFLAGS = -I/usr/local/include -I/usr/include
 

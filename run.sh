@@ -1,4 +1,5 @@
-num_runs=256
+num_runs=4
 #echo "parallel ./run ::: {1..$num_runs}"
-echo $num_runs
-parallel -N 2 "./run {1} {2}" ::: $(seq 1 $num_runs) force_vector
+echo "num runs : " $num_runs
+
+parallel --verbose -N 2 "./run {1} {2}" ::: $(seq 1 $num_runs) vanilla
