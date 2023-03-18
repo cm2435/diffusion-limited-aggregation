@@ -20,6 +20,35 @@ namespace colours {
 	GLfloat darkGrey[] = { 0.2, 0.2, 0.2, 1.0 };     // green
 }
 
+// this function gets called every step,
+//   if there is an active particle then it gets moved,
+//   if not then add a particle
+void DLASystem::Update() {
+
+	if (lastParticleIsActive == 1) {
+		moveLastParticle();
+	}
+
+	//At end of simulation write to output text file
+	else if(numParticles == endNum){
+		string fp = "data/force_vector_8/output" + to_string(seed) + ".txt";
+		std::cout << "writing simulation data for seed " << to_string(seed) << " to" << fp << std::endl;
+		ofstream logfile(fp);
+		for(auto var : LogfileRows){
+		logfile << var << endl;
+		}
+		logfile.close();
+		exit(0);
+	}
+
+	else if (numParticles < endNum) {
+		addParticleOnAddCircle();
+		setParticleActive();
+	}
+	if (lastParticleIsActive == 0 || slowNotFast == 1)
+		glutPostRedisplay(); //Tell GLUT that the display has changed
+}
+
 
 std::vector<std::pair<int, int>> DLASystem::generateRing(std::pair<int, int> particlePosition, int radius, int** grid) {
     std::vector<std::pair<int, int>> coordinatePositiveRing; // initialize number of points in the ring to zero
@@ -174,35 +203,6 @@ std::vector<double> DLASystem::convertVectorRngProbability(std::pair<double, dou
 		{vectorProb[3] = vectorProb[3] - vectorMean.second;}
 
 	return vectorProb;
-}
-
-// this function gets called every step,
-//   if there is an active particle then it gets moved,
-//   if not then add a particle
-void DLASystem::Update() {
-
-	if (lastParticleIsActive == 1) {
-		moveLastParticle();
-	}
-
-	//At end of simulation write to output text file
-	else if(numParticles == endNum){
-		string fp = "data/force_vector_p=1.0/output" + to_string(seed) + ".txt";
-		std::cout << "writing simulation data for seed " << to_string(seed) << " to" << fp << std::endl;
-		ofstream logfile(fp);
-		for(auto var : LogfileRows){
-		logfile << var << endl;
-		}
-		logfile.close();
-		exit(0);
-	}
-
-	else if (numParticles < endNum) {
-		addParticleOnAddCircle();
-		setParticleActive();
-	}
-	if (lastParticleIsActive == 0 || slowNotFast == 1)
-		glutPostRedisplay(); //Tell GLUT that the display has changed
 }
 
 
@@ -387,7 +387,7 @@ void DLASystem::moveLastParticle() {
 	//run jump process yukawa process
 	if(condition == "force_vector_jump"){
 		std::pair<int, int> position = std::make_pair(lastP->pos[0] + 800, lastP->pos[1] + 800);
-		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 10, grid);
+		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 15, grid);
 		if (nearbyParticles.size() == 0){
 				
 			int rr = rgen.randomInt(4);

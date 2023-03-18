@@ -29,7 +29,7 @@ class DLASystem {
     int seed;
 
     //maximum force intensity for the yukakwa potential if used.
-    int maximumForceScale = 26; 
+    int maximumForceScale = 24; 
     
     //Check the geodesic path between two points to jump for collisions 
     std::pair<int,int> isPathClear(int x1, int y1, int x2, int y2);
@@ -179,7 +179,7 @@ class DLASystem {
 
     // check whether the last particle should stick
     // currently it sticks whenever it touches another particle
-    int checkStick(double StickProb = 0.9);
+    int checkStick(double StickProb = 1);
     //log the current number of patciles and the DLA radius 
     string LogRadius(bool Verbose = true);
 

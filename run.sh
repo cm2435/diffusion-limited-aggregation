@@ -1,4 +1,4 @@
-num_runs=256
+num_runs=32
 #echo "parallel ./run ::: {1..$num_runs}"
 echo "num runs : " $num_runs
 
