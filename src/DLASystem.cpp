@@ -390,13 +390,8 @@ void DLASystem::moveLastParticle() {
 
 	//run jump process yukawa process
 	if(condition == "force_vector_jump"){
-		if (LogfileRows.size() < 200){
-			int rr = rgen.randomInt(4);
-			setPosNeighbourDLA(newpos, lastP->pos, rr);
-		}
-		else{
 		std::pair<int, int> position = std::make_pair(lastP->pos[0] + 800, lastP->pos[1] + 800);
-		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 15, grid);
+		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 10, grid);
 		std::vector<std::pair<double, double>> forceVectors;
 		for(int i = 0; i < nearbyParticles.size(); ++i){
 			std::pair<double, double> Vector = findForceVector(nearbyParticles[i], position);
@@ -405,25 +400,22 @@ void DLASystem::moveLastParticle() {
 
 		std::pair<double, double> vectorMean = findVectorMean(forceVectors);		
 		std::vector<double> vectorMeanFourD = convertVectorRngProbability(vectorMean);
-		//cout << "first position" << position.first << "," <<  position.second << endl;
-		//cout << findNewPosition(position, vectorMean).first << "," << findNewPosition(position, vectorMean).second << endl;
 		position.first = position.first - 800; 
 		position.second = position.second - 800; 
 
-		std::pair<int, int> newPosition = findNewPosition(position, vectorMean);
+		std::vector<std::pair<int, int>> shortRangeNearbyParticles = generateRing(position, 3, grid);
+		if (shortRangeNearbyParticles.size() > 0){
+			std::pair<int, int> newPosition = findNewPosition(position, vectorMean);
+			newpos[0] = newPosition.first;
+			newpos[1] = newPosition.second;
 
-		newpos[0] = newPosition.first;
-		newpos[1] = newPosition.second;
-
-		//if (distanceFromOrigin(newpos) == sqrt(2)){
-		//	int rr = rgen.randomInt(4);
-		//	setPosNeighbourDLA(newpos, lastP->pos, rr);
-		//}
 		}
-		//cout << position.first << "," << position.second << "," << newpos[0] << ","  << newpos[1] << endl;
-		//cout << "segfault" << endl;
+		else{
+			std::vector<double> vectorMeanFourD = convertVectorRngProbability(vectorMean);
+			int rr = rgen.weightedRandInt(vectorMeanFourD);
+			setPosNeighbourDLA(newpos, lastP->pos, rr);
+		}
 	}
-	cout << "distance" <<  distanceFromOrigin(newpos) << endl;
 	if (distanceFromOrigin(newpos) > killCircle) {
 		cout << "#deleting particle" << endl;
 		setGrid(lastP->pos, 0);
