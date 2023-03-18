@@ -3,7 +3,7 @@
 //
 #include <math.h>
 #include <string.h>
-#include "../headers/JumpGenerator.h"
+#include "../headers/LevvyJumps.h"
 
 std::pair<double, double> GaussianWalker::updateGaussianJump(std::pair<int, int> currentPosition, int jumpLength){
     //todo : impliment me 
