@@ -58,9 +58,6 @@ std::pair<int,int> DLASystem::isPathClear(int x1, int y1, int x2, int y2) {
     int x = x1;
     int y = y1;
 
-	cout << "grid val: " << grid[x+800][y+800] << "," << x << "," << y << endl;;
-	cout << x + dirX << "," <<  y+ dirY << "," << error;
-	cout << endl << endl;
     // Traverse along the path from (x1,y1) to (x2,y2)
     while (x != x2 || y != y2) {
         // Check if the current position contains a particle
@@ -111,7 +108,6 @@ std::pair<int, int> DLASystem::findNewPosition(pair<int, int> particlePosition, 
 	std::pair<int, int> jumpVector = {findJumpSize(meanForceVector.first), findJumpSize(meanForceVector.second)};
 	std::pair<int, int> DesirednewParticlePosition = {particlePosition.first + jumpVector.first, particlePosition.second + jumpVector.second};
 	
-	cout << "position and force vector : " << particlePosition.first << "," << particlePosition.second << "," << meanForceVector.first << ","  <<meanForceVector.second << endl;
   	std::pair<int, int> GeodesicParticlePositon = isPathClear(particlePosition.first, particlePosition.second, DesirednewParticlePosition.first, DesirednewParticlePosition.second);
 	if (GeodesicParticlePositon != DesirednewParticlePosition){
 		cout << "collision!" << endl;
