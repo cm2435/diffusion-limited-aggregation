@@ -9,6 +9,8 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
+
+
 // colors
 namespace colours {
 	GLfloat blue[] = { 0.1, 0.3, 0.9, 1.0 };   // blue
@@ -17,6 +19,7 @@ namespace colours {
 	GLfloat paleGrey[] = { 0.7, 0.7, 0.7, 1.0 };     // green
 	GLfloat darkGrey[] = { 0.2, 0.2, 0.2, 1.0 };     // green
 }
+
 
 std::vector<std::pair<int, int>> DLASystem::generateRing(std::pair<int, int> particlePosition, int radius, int** grid) {
     std::vector<std::pair<int, int>> coordinatePositiveRing; // initialize number of points in the ring to zero
@@ -40,6 +43,7 @@ std::vector<std::pair<int, int>> DLASystem::generateRing(std::pair<int, int> par
 	}
 	return coordinatePositiveRing;
 }
+
 
 std::pair<int,int> DLASystem::isPathClear(int x1, int y1, int x2, int y2) {
 	//cout << "path coords " << x1 << "," << y1 << "," << x2 << "," << y2 << endl;
@@ -82,15 +86,8 @@ std::pair<int,int> DLASystem::isPathClear(int x1, int y1, int x2, int y2) {
 }
 
 
-//Given a jump radius, generate a ring of points you are allowed to jump to from the current position
-std::vector<std::pair<int, int>> findRingPoints(pair<int, int> particlePosition, int jumpRadius){
-	std::vector<std::pair<int, int>> ringCoordinates; // initialize number of points in the ring to zero
-	int x = particlePosition.first;
-	int y = particlePosition.second; 
-
-}
-
 //Given the magnitude of the force, find how many jumps this means the random walker should move
+//This acts as a discretisation of the force magnitude 
 int findJumpSize(int forceVectorMagnitude){
 	vector<pair<int, int>> forceCutOffs = {{24,6}, {20,5}, {16,4}, {12,3}, {8,2}, {4,1}};
 	for (auto& forceVal : forceCutOffs){
@@ -104,6 +101,11 @@ int findJumpSize(int forceVectorMagnitude){
 
 }
 
+
+//Given a particle position and the mean force vector that is acting on that particle from an attractive 
+//potential, calculate the jump size that needs to be walked in each direction to find the new position, 
+//Find the geodesic path and try to move there. If a particle (in the cluster) is in the way, collide with it and 
+//cease walking along the geodesic line 
 std::pair<int, int> DLASystem::findNewPosition(pair<int, int> particlePosition, pair<double, double> meanForceVector){
 	std::pair<int, int> jumpVector = {findJumpSize(meanForceVector.first), findJumpSize(meanForceVector.second)};
 	std::pair<int, int> DesirednewParticlePosition = {particlePosition.first + jumpVector.first, particlePosition.second + jumpVector.second};
@@ -115,6 +117,8 @@ std::pair<int, int> DLASystem::findNewPosition(pair<int, int> particlePosition, 
 	return GeodesicParticlePositon;
 }
 
+//Find the yukawa potential at any given position. Define this as a ratio of the magnitude of the brownian (Langevin force)
+//This does not check that a particle is in the local area for there to be a force, that has to be done seperately. 
 std::pair<double, double> DLASystem::findForceVector(std::pair<int,int> randomwalkerPosition, std::pair<int,int> fractalParticlePosition){
 	//if xDiff is positive, force is to right, if Ydiff is positive then force is also up. 
 	float xDiff =  randomwalkerPosition.first - fractalParticlePosition.first;
@@ -134,6 +138,7 @@ std::pair<double, double> DLASystem::findForceVector(std::pair<int,int> randomwa
 	return forceCoords;
 }
 
+//Given several vectors in the 2D plane acting on the ranom walking particle, find their mean.
 std::pair<double, double> DLASystem::findVectorMean(std::vector<std::pair<double,double>> VectorList){
 	vector<double> xVals, yVals; 
 	for (const auto& vector : VectorList){
