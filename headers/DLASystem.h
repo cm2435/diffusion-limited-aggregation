@@ -32,13 +32,10 @@ class DLASystem {
     //90% probability in one direction is a value of 26 
     int maximumForceScale = 26; 
     
-    //Given a radius and the random walker position, generate a list of allowed positions to jump to 
-    std::vector<std::pair<int, int>> findRingPoints(pair<int, int> particlePosition, int jumpRadius);
-
-    //Check path 
+    //Check the geodesic path between two points to jump for collisions 
     std::pair<int,int> isPathClear(int x1, int y1, int x2, int y2);
 
-
+    //Find the particles new position for a jumping process given a force
     std::pair<int, int> findNewPosition(pair<int, int> particlePosition, pair<double, double> meanForceVector);
 
 
@@ -171,10 +168,7 @@ class DLASystem {
 
     // assign setpos to the position of a neighbour of pos
     // which neighbour we look at is determined by val (=0,1,2,3)
-    void setPosNeighbourDLA(double setpos[], double pos[], int val);
-
-    void setPosNeighbourJumpProcess(double setpos[], std::pair<int, int> newPosition);
-
+    void setPosNeighbour(double setpos[], double pos[], int val);
 
     // this attempts to move the last particle in the List to a random neighbour
     // if the neighbour is occupied then nothing happens

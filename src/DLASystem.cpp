@@ -298,7 +298,7 @@ void DLASystem::addParticleOnAddCircle() {
 // send back the position of a neighbour of a given grid cell
 // NOTE: there is no check that the neighbour is inside the grid,
 // this has to be done separately...
-void DLASystem::setPosNeighbourDLA(double setpos[], double pos[], int val) {
+void DLASystem::setPosNeighbour(double setpos[], double pos[], int val) {
 		switch (val) {
 		case 0:
 			setpos[0] = pos[0] + 1.0;
@@ -318,12 +318,6 @@ void DLASystem::setPosNeighbourDLA(double setpos[], double pos[], int val) {
 			break;
 		}
 }
-
-void DLASystem::setPosNeighbourJumpProcess(double setpos[], std::pair<int, int> newPosition){
-	setpos[0] = newPosition.first;
-	setpos[1] = newPosition.second;
-}
-
 
 
 // if the view is smaller than the kill circle then increase the view area (zoom out)
@@ -371,7 +365,7 @@ void DLASystem::moveLastParticle() {
 	//Run vanilla random walk mechanics
 	if(condition=="vanilla"){
 		int rr = rgen.randomInt(4);
-		setPosNeighbourDLA(newpos, lastP->pos, rr);
+		setPosNeighbour(newpos, lastP->pos, rr);
 	}
 	//Run single step size yukawa potential mechanics 
 	if(condition == "force_vector"){
@@ -386,7 +380,7 @@ void DLASystem::moveLastParticle() {
 		std::pair<double, double> vectorMean = findVectorMean(forceVectors);		
 		std::vector<double> vectorMeanFourD = convertVectorRngProbability(vectorMean);
 		int rr = rgen.weightedRandInt(vectorMeanFourD);
-		setPosNeighbourDLA(newpos, lastP->pos, rr);
+		setPosNeighbour(newpos, lastP->pos, rr);
 	}
 
 	//run jump process yukawa process
@@ -414,7 +408,7 @@ void DLASystem::moveLastParticle() {
 		else{
 			std::vector<double> vectorMeanFourD = convertVectorRngProbability(vectorMean);
 			int rr = rgen.weightedRandInt(vectorMeanFourD);
-			setPosNeighbourDLA(newpos, lastP->pos, rr);
+			setPosNeighbour(newpos, lastP->pos, rr);
 		}
 	}
 	if (distanceFromOrigin(newpos) > killCircle) {
@@ -468,7 +462,7 @@ int DLASystem::checkStick(double StickProb) {
 	if (condition == "vanilla" || condition == "force_vector"){
 		for (int i = 0; i < 4; i++) {
 			double checkpos[2];
-			setPosNeighbourDLA(checkpos, lastP->pos, i);
+			setPosNeighbour(checkpos, lastP->pos, i);
 			// if the neighbour is occupied...
 			if (readGrid(checkpos) == 1){
 				if (rgen.random01() < StickProb){
@@ -480,7 +474,6 @@ int DLASystem::checkStick(double StickProb) {
 	}
 
 }
-
 
 // constructor
 DLASystem::DLASystem(Window *set_win, int seed_, string condition_) {
