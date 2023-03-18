@@ -6,6 +6,8 @@
 #include <string>
 #include <map>
 #include <random>
+
+//THIS CODE IS FOR LEVVY FLIGHTS AND IS NOT USED AS PARK OF THE YUKAWA POTENTIAL 
 class AbstractWalker{
     private: 
         std::random_device rd;
