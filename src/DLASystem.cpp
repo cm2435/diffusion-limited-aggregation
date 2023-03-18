@@ -7,7 +7,8 @@
 #include<cmath>
 #include<algorithm>
 #include <cmath>
-
+#include <chrono>
+#include <thread>
 // colors
 namespace colours {
 	GLfloat blue[] = { 0.1, 0.3, 0.9, 1.0 };   // blue
@@ -16,19 +17,6 @@ namespace colours {
 	GLfloat paleGrey[] = { 0.7, 0.7, 0.7, 1.0 };     // green
 	GLfloat darkGrey[] = { 0.2, 0.2, 0.2, 1.0 };     // green
 }
-
-std::vector<std::pair<int, int>> findOnes(int** arr) {
-    std::vector<std::pair<int, int>> ones;
-    for (int i = 0; i < 1600; i++) {
-        for (int j = 0; j < 1600; j++) {
-            if (arr[i][j] == 1) {
-                ones.push_back(std::make_pair(i, j));
-            }
-        }
-    }
-    return ones;
-}
-
 
 std::vector<std::pair<int, int>> DLASystem::generateRing(std::pair<int, int> particlePosition, int radius, int** grid) {
     std::vector<std::pair<int, int>> coordinatePositiveRing; // initialize number of points in the ring to zero
@@ -53,6 +41,84 @@ std::vector<std::pair<int, int>> DLASystem::generateRing(std::pair<int, int> par
 	return coordinatePositiveRing;
 }
 
+std::pair<int,int> DLASystem::isPathClear(int x1, int y1, int x2, int y2) {
+	//cout << "path coords " << x1 << "," << y1 << "," << x2 << "," << y2 << endl;
+    // Calculate the x and y distances between the points
+    int dx = abs(x2 - x1);
+    int dy = abs(y2 - y1);
+
+    // Determine the direction of travel in each dimension
+    int dirX = (x2 > x1) ? 1 : -1;
+    int dirY = (y2 > y1) ? 1 : -1;
+
+    // Calculate the error in each dimension
+    int error = dx - dy;
+
+    // Track the current position along the path
+    int x = x1;
+    int y = y1;
+
+	cout << "grid val: " << grid[x+800][y+800] << "," << x << "," << y << endl;;
+	cout << x + dirX << "," <<  y+ dirY << "," << error;
+	cout << endl << endl;
+    // Traverse along the path from (x1,y1) to (x2,y2)
+    while (x != x2 || y != y2) {
+        // Check if the current position contains a particle
+        //if (x+dirX == 0 && y+dirY == 0){
+		//if(grid[x+800][y+800] == 1){
+		//	return make_pair(x,y);
+        //}
+        // Update the error and move in the x direction
+        int error2 = error * 2;
+        if (error2 > -dy) {
+            error -= dy;
+            x += dirX;
+        }
+        // Update the error and move in the y direction
+        if (error2 < dx) {
+            error += dx;
+            y += dirY;
+        }
+    }
+    // No particles found along the path
+    return std::make_pair(x,y);
+}
+
+
+//Given a jump radius, generate a ring of points you are allowed to jump to from the current position
+std::vector<std::pair<int, int>> findRingPoints(pair<int, int> particlePosition, int jumpRadius){
+	std::vector<std::pair<int, int>> ringCoordinates; // initialize number of points in the ring to zero
+	int x = particlePosition.first;
+	int y = particlePosition.second; 
+
+}
+
+//Given the magnitude of the force, find how many jumps this means the random walker should move
+int findJumpSize(int forceVectorMagnitude){
+	vector<pair<int, int>> forceCutOffs = {{24,6}, {20,5}, {16,4}, {12,3}, {8,2}, {4,1}};
+	for (auto& forceVal : forceCutOffs){
+		if (signbit(forceVal.first - abs(forceVectorMagnitude)) ==1){
+			if (signbit(forceVectorMagnitude) == 1){return forceVal.second * -1;}
+			return forceVal.second;
+		}
+	}
+	if (signbit(forceVectorMagnitude) == 1){return-1;}
+	else{return 1;}
+
+}
+
+std::pair<int, int> DLASystem::findNewPosition(pair<int, int> particlePosition, pair<double, double> meanForceVector){
+	std::pair<int, int> jumpVector = {findJumpSize(meanForceVector.first), findJumpSize(meanForceVector.second)};
+	std::pair<int, int> DesirednewParticlePosition = {particlePosition.first + jumpVector.first, particlePosition.second + jumpVector.second};
+	
+	cout << "position and force vector : " << particlePosition.first << "," << particlePosition.second << "," << meanForceVector.first << ","  <<meanForceVector.second << endl;
+  	std::pair<int, int> GeodesicParticlePositon = isPathClear(particlePosition.first, particlePosition.second, DesirednewParticlePosition.first, DesirednewParticlePosition.second);
+	if (GeodesicParticlePositon != DesirednewParticlePosition){
+		cout << "collision!" << endl;
+	}
+	return GeodesicParticlePositon;
+}
+
 std::pair<double, double> DLASystem::findForceVector(std::pair<int,int> randomwalkerPosition, std::pair<int,int> fractalParticlePosition){
 	//if xDiff is positive, force is to right, if Ydiff is positive then force is also up. 
 	float xDiff =  randomwalkerPosition.first - fractalParticlePosition.first;
@@ -60,7 +126,7 @@ std::pair<double, double> DLASystem::findForceVector(std::pair<int,int> randomwa
 	float totalDiff = sqrt(pow(xDiff,2) + pow(yDiff,2));
 
 	//Find the mag of the force as a Yakuma potential 
-	float forceVector = 26 / pow(totalDiff,1);
+	float forceVector = maximumForceScale / pow(totalDiff,1);
 	
 	float xUnit = xDiff / totalDiff; 
 	float yUnit = yDiff / totalDiff; 
@@ -105,9 +171,6 @@ std::vector<double> DLASystem::convertVectorRngProbability(std::pair<double, dou
 	else
 		{vectorProb[3] = vectorProb[3] - vectorMean.second;}
 
-	//cout << vectorMean.first << "," << vectorMean.second << "," << endl;
-	//cout << vectorProb[0] << "," << vectorProb[1] << "," << vectorProb[2] << "," << vectorProb[3] << "," << endl;
-	//cout << endl << endl;
 	return vectorProb;
 }
 
@@ -234,28 +297,33 @@ void DLASystem::addParticleOnAddCircle() {
 // send back the position of a neighbour of a given grid cell
 // NOTE: there is no check that the neighbour is inside the grid,
 // this has to be done separately...
-void DLASystem::setPosNeighbour(double setpos[], double pos[], int val) {
-	switch (val) {
-	case 0:
-		setpos[0] = pos[0] + 1.0;
-		setpos[1] = pos[1];
-		break;
-	case 1:
-		setpos[0] = pos[0] - 1.0;
-		setpos[1] = pos[1];
-		break;
-	case 2:
-		setpos[0] = pos[0];
-		setpos[1] = pos[1] + 1.0;
-		break;
-	case 3:
-		setpos[0] = pos[0];
-		setpos[1] = pos[1] - 1.0;
-		break;
-	}
-	//cout << setpos[1] << *setpos << endl;
-	//cout << setpos[0] << "," << setpos[1] << endl;
+void DLASystem::setPosNeighbourDLA(double setpos[], double pos[], int val) {
+		switch (val) {
+		case 0:
+			setpos[0] = pos[0] + 1.0;
+			setpos[1] = pos[1];
+			break;
+		case 1:
+			setpos[0] = pos[0] - 1.0;
+			setpos[1] = pos[1];
+			break;
+		case 2:
+			setpos[0] = pos[0];
+			setpos[1] = pos[1] + 1.0;
+			break;
+		case 3:
+			setpos[0] = pos[0];
+			setpos[1] = pos[1] - 1.0;
+			break;
+		}
 }
+
+void DLASystem::setPosNeighbourJumpProcess(double setpos[], std::pair<int, int> newPosition){
+	setpos[0] = newPosition.first;
+	setpos[1] = newPosition.second;
+}
+
+
 
 // if the view is smaller than the kill circle then increase the view area (zoom out)
 void DLASystem::updateViewSize() {
@@ -292,40 +360,72 @@ void DLASystem::updateClusterRadius(double pos[]) {
 	}
 }
 
+
 // make a random move of the last particle in the particleList
 void DLASystem::moveLastParticle() {
 	double newpos[2];
 	Particle *lastP = particleList[numParticles - 1];
+	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+	//Run vanilla random walk mechanics
 	if(condition=="vanilla"){
 		int rr = rgen.randomInt(4);
-		setPosNeighbour(newpos, lastP->pos, rr);
-
+		setPosNeighbourDLA(newpos, lastP->pos, rr);
 	}
-
-	//std::pair<int, int> position = std::make_pair(lastP->pos[0], lastP->pos[1]);
-	//std::vector<std::pair<int, int>> x = generateRing(position, 5, grid);
-	//cout << x.size() << endl;
-
-	else if(condition == "force_vector"){
+	//Run single step size yukawa potential mechanics 
+	if(condition == "force_vector"){
 		std::pair<int, int> position = std::make_pair(lastP->pos[0] + 800, lastP->pos[1] + 800);
-		//cout << position.first << position.second << endl;
 		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 7, grid);
 		std::vector<std::pair<double, double>> forceVectors;
 		for(int i = 0; i < nearbyParticles.size(); ++i){
 			std::pair<double, double> Vector = findForceVector(nearbyParticles[i], position);
 			forceVectors.push_back(Vector);
-			//cout << Vector.first << "," << Vector.second << endl;
 		}
 
 		std::pair<double, double> vectorMean = findVectorMean(forceVectors);		
 		std::vector<double> vectorMeanFourD = convertVectorRngProbability(vectorMean);
-
-
 		int rr = rgen.weightedRandInt(vectorMeanFourD);
-		setPosNeighbour(newpos, lastP->pos, rr);
+		setPosNeighbourDLA(newpos, lastP->pos, rr);
 	}
+
+	//run jump process yukawa process
+	if(condition == "force_vector_jump"){
+		if (LogfileRows.size() < 200){
+			int rr = rgen.randomInt(4);
+			setPosNeighbourDLA(newpos, lastP->pos, rr);
+		}
+		else{
+		std::pair<int, int> position = std::make_pair(lastP->pos[0] + 800, lastP->pos[1] + 800);
+		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 15, grid);
+		std::vector<std::pair<double, double>> forceVectors;
+		for(int i = 0; i < nearbyParticles.size(); ++i){
+			std::pair<double, double> Vector = findForceVector(nearbyParticles[i], position);
+			forceVectors.push_back(Vector);
+		}
+
+		std::pair<double, double> vectorMean = findVectorMean(forceVectors);		
+		std::vector<double> vectorMeanFourD = convertVectorRngProbability(vectorMean);
+		//cout << "first position" << position.first << "," <<  position.second << endl;
+		//cout << findNewPosition(position, vectorMean).first << "," << findNewPosition(position, vectorMean).second << endl;
+		position.first = position.first - 800; 
+		position.second = position.second - 800; 
+
+		std::pair<int, int> newPosition = findNewPosition(position, vectorMean);
+
+		newpos[0] = newPosition.first;
+		newpos[1] = newPosition.second;
+
+		//if (distanceFromOrigin(newpos) == sqrt(2)){
+		//	int rr = rgen.randomInt(4);
+		//	setPosNeighbourDLA(newpos, lastP->pos, rr);
+		//}
+		}
+		//cout << position.first << "," << position.second << "," << newpos[0] << ","  << newpos[1] << endl;
+		//cout << "segfault" << endl;
+	}
+	cout << "distance" <<  distanceFromOrigin(newpos) << endl;
 	if (distanceFromOrigin(newpos) > killCircle) {
-		//cout << "#deleting particle" << endl;
+		cout << "#deleting particle" << endl;
 		setGrid(lastP->pos, 0);
 		particleList.pop_back();  // remove particle from particleList
 		numParticles--;
@@ -340,7 +440,7 @@ void DLASystem::moveLastParticle() {
 		setGrid(lastP->pos, 1);  // set the new grid site to be occupied
 
 		// check if we stick
-		if (checkStick()) {
+		if (checkStick()){
 			//cout << "stick" << endl;
 			setParticleInactive();  // make the particle inactive (stuck)
 			updateClusterRadius(lastP->pos);  // update the cluster radius, addCircle, etc.
@@ -372,17 +472,20 @@ int DLASystem::checkStick(double StickProb) {
 	Particle *lastP = particleList[numParticles - 1];
 	int result = 0;
 	// loop over neighbours
-	for (int i = 0; i < 4; i++) {
-		double checkpos[2];
-		setPosNeighbour(checkpos, lastP->pos, i);
-		// if the neighbour is occupied...
-		if (readGrid(checkpos) == 1){
-			if (rgen.random01() < StickProb){
-				result = 1;
-			}
-		};
+	if (condition == "vanilla" || condition == "force_vector"){
+		for (int i = 0; i < 4; i++) {
+			double checkpos[2];
+			setPosNeighbourDLA(checkpos, lastP->pos, i);
+			// if the neighbour is occupied...
+			if (readGrid(checkpos) == 1){
+				if (rgen.random01() < StickProb){
+					result = 1;
+				}
+			};
+		}
+		return result;
 	}
-	return result;
+
 }
 
 
@@ -396,16 +499,6 @@ DLASystem::DLASystem(Window *set_win, int seed_, string condition_) {
 	//set rng seed 
 	seed = seed_;
 	setSeed(seed_);
-
-	//Set the random walk condition 
-	/*if (std::find(allowedConditions.begin(), allowedConditions.end(), condition_) != allowedConditions.end()){
-		condition = condition_;
-	}
-	else{
-		throw std::invalid_argument("Random walk type passed was not in allowed list. Type passed was" + condition_);
-	};
-	*/
-	
 	condition = condition_;
 
 	// allocate memory for the grid, remember to free the memory in destructor
