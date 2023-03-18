@@ -28,8 +28,7 @@ class DLASystem {
     //seed for rng
     int seed;
 
-    //maximum force intensity for the yukakwa potential if used: Motion weights sum to four normally, so 
-    //90% probability in one direction is a value of 26 
+    //maximum force intensity for the yukakwa potential if used.
     int maximumForceScale = 26; 
     
     //Check the geodesic path between two points to jump for collisions 
@@ -87,12 +86,15 @@ class DLASystem {
     //Convert a force 'vector' into a length 4 weight vector for the RNG generation
     std::vector<double> convertVectorRngProbability(std::pair<double, double> vectorMean);
   
+    //Velocity vector probability to be incremented at each timestep
+	  //std::vector<double> wewwrgh = {1.0, 1.0, 1.0, 1.0};
+
   public:
   // these are public variables and functions
 
     // random number generator, class name is rnd, instance is rgen
     rnd rgen;
-    
+
     //Vector of strings for the log file 
     vector<string> LogfileRows; 
 

@@ -10,7 +10,7 @@
 #include <chrono>
 #include <thread>
 
-
+#define protonMass 1.6726219e-27
 // colors
 namespace colours {
 	GLfloat blue[] = { 0.1, 0.3, 0.9, 1.0 };   // blue
@@ -125,8 +125,8 @@ std::pair<double, double> DLASystem::findForceVector(std::pair<int,int> randomwa
 	float yDiff =  randomwalkerPosition.second -fractalParticlePosition.second;
 	float totalDiff = sqrt(pow(xDiff,2) + pow(yDiff,2));
 
-	//Find the mag of the force as a Yakuma potential 
-	float forceVector = maximumForceScale / pow(totalDiff,1);
+	//Find the mag of the force as a Yakuma potential 	
+	float forceVector = maximumForceScale * exp(-totalDiff * protonMass)/ pow(totalDiff,2);
 	
 	float xUnit = xDiff / totalDiff; 
 	float yUnit = yDiff / totalDiff; 
@@ -161,7 +161,8 @@ std::pair<double, double> DLASystem::findVectorMean(std::vector<std::pair<double
 //Reformat the pair of vector components to a vector of size 4 which
 //is the RNG weights for random walking
 std::vector<double> DLASystem::convertVectorRngProbability(std::pair<double, double> vectorMean){
-	std::vector<double> vectorProb = {1.0, 1.0, 1.0, 1.0};
+	double vectorMaxValInitial = maximumForceScale / 10;
+	std::vector<double> vectorProb = {1,1,1,1,};
 	if(signbit(vectorMean.first) == 0)
 		{vectorProb[0] = vectorProb[0]+vectorMean.first;}
 	else
@@ -387,32 +388,39 @@ void DLASystem::moveLastParticle() {
 	if(condition == "force_vector_jump"){
 		std::pair<int, int> position = std::make_pair(lastP->pos[0] + 800, lastP->pos[1] + 800);
 		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 10, grid);
-		std::vector<std::pair<double, double>> forceVectors;
-		for(int i = 0; i < nearbyParticles.size(); ++i){
-			std::pair<double, double> Vector = findForceVector(nearbyParticles[i], position);
-			forceVectors.push_back(Vector);
-		}
-
-		std::pair<double, double> vectorMean = findVectorMean(forceVectors);		
-		std::vector<double> vectorMeanFourD = convertVectorRngProbability(vectorMean);
-		position.first = position.first - 800; 
-		position.second = position.second - 800; 
-
-		std::vector<std::pair<int, int>> shortRangeNearbyParticles = generateRing(position, 3, grid);
-		if (shortRangeNearbyParticles.size() > 0){
-			std::pair<int, int> newPosition = findNewPosition(position, vectorMean);
-			newpos[0] = newPosition.first;
-			newpos[1] = newPosition.second;
-
+		if (nearbyParticles.size() == 0){
+				
+			int rr = rgen.randomInt(4);
+			setPosNeighbour(newpos, lastP->pos, rr);
 		}
 		else{
+			std::vector<std::pair<double, double>> forceVectors;
+			for(int i = 0; i < nearbyParticles.size(); ++i){
+				std::pair<double, double> Vector = findForceVector(nearbyParticles[i], position);
+				forceVectors.push_back(Vector);
+			}
+
+			std::pair<double, double> vectorMean = findVectorMean(forceVectors);		
 			std::vector<double> vectorMeanFourD = convertVectorRngProbability(vectorMean);
-			int rr = rgen.weightedRandInt(vectorMeanFourD);
-			setPosNeighbour(newpos, lastP->pos, rr);
+			position.first = position.first - 800; 
+			position.second = position.second - 800; 
+
+			std::vector<std::pair<int, int>> shortRangeNearbyParticles = generateRing(position, 3, grid);
+			if (shortRangeNearbyParticles.size() > 0){
+				std::pair<int, int> newPosition = findNewPosition(position, vectorMean);
+				newpos[0] = newPosition.first;
+				newpos[1] = newPosition.second;
+
+			}
+			else{
+				std::vector<double> vectorMeanFourD = convertVectorRngProbability(vectorMean);
+				int rr = rgen.weightedRandInt(vectorMeanFourD);
+				setPosNeighbour(newpos, lastP->pos, rr);
+			}
 		}
 	}
 	if (distanceFromOrigin(newpos) > killCircle) {
-		cout << "#deleting particle" << endl;
+		//cout << "#deleting particle" << endl;
 		setGrid(lastP->pos, 0);
 		particleList.pop_back();  // remove particle from particleList
 		numParticles--;
@@ -480,7 +488,7 @@ DLASystem::DLASystem(Window *set_win, int seed_, string condition_) {
 	cout << "creating system, gridSize " << gridSize << endl;
 	win = set_win;
 	numParticles = 0;
-	endNum = 5000;
+	endNum = 2500;
 	
 	//set rng seed 
 	seed = seed_;
@@ -495,8 +503,8 @@ DLASystem::DLASystem(Window *set_win, int seed_, string condition_) {
 	slowNotFast = 1;
 	// reset initial parameters
 	Reset();\
-	addRatio = 1.2;   // how much bigger the addCircle should be, compared to cluster radius
-	killRatio = 1.7;   // how much bigger is the killCircle, compared to the addCircle
+	addRatio = 1.3;   // how much bigger the addCircle should be, compared to cluster radius
+	killRatio = 1.5;   // how much bigger is the killCircle, compared to the addCircle
 
 	// this opens a logfile, if we want to...
 	//logfile.open("opfile.txt");
