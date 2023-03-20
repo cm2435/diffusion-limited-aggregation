@@ -30,8 +30,8 @@ void DLASystem::Update() {
 	}
 
 	//At end of simulation write to output text file
-	else if(numParticles == endNum){
-		string fp = "data/force_vector_8/output" + to_string(seed) + ".txt";
+	else if(numParticles == endNum){		
+		string fp = "data/force_vector/force_vector_0.5/output" + to_string(seed) + ".txt";
 		std::cout << "writing simulation data for seed " << to_string(seed) << " to" << fp << std::endl;
 		ofstream logfile(fp);
 		for(auto var : LogfileRows){
@@ -47,6 +47,7 @@ void DLASystem::Update() {
 	}
 	if (lastParticleIsActive == 0 || slowNotFast == 1)
 		glutPostRedisplay(); //Tell GLUT that the display has changed
+
 }
 
 
@@ -118,7 +119,7 @@ std::pair<int,int> DLASystem::isPathClear(int x1, int y1, int x2, int y2) {
 //Given the magnitude of the force, find how many jumps this means the random walker should move
 //This acts as a discretisation of the force magnitude 
 int findJumpSize(int forceVectorMagnitude){
-	vector<pair<int, int>> forceCutOffs = {{24,6}, {20,5}, {16,4}, {12,3}, {8,2}, {4,1}};
+	vector<pair<int, int>> forceCutOffs = {{24/protonMass,6}, {20/protonMass,5}, {16/protonMass,4}, {12/protonMass,3}, {8/protonMass,2}, {4/protonMass,1}};
 	for (auto& forceVal : forceCutOffs){
 		if (signbit(forceVal.first - abs(forceVectorMagnitude)) ==1){
 			if (signbit(forceVectorMagnitude) == 1){return forceVal.second * -1;}
@@ -156,7 +157,8 @@ std::pair<double, double> DLASystem::findForceVector(std::pair<int,int> randomwa
 
 	//Find the mag of the force as a Yakuma potential 	
 	float forceVector = maximumForceScale * exp(-totalDiff * protonMass)/ pow(totalDiff,2);
-	
+	//a = F/m
+	forceVector  = forceVector / protonMass; 
 	float xUnit = xDiff / totalDiff; 
 	float yUnit = yDiff / totalDiff; 
 
@@ -371,7 +373,7 @@ void DLASystem::moveLastParticle() {
 	//Run single step size yukawa potential mechanics 
 	if(condition == "force_vector"){
 		std::pair<int, int> position = std::make_pair(lastP->pos[0] + 800, lastP->pos[1] + 800);
-		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 7, grid);
+		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 10, grid);
 		std::vector<std::pair<double, double>> forceVectors;
 		for(int i = 0; i < nearbyParticles.size(); ++i){
 			std::pair<double, double> Vector = findForceVector(nearbyParticles[i], position);
@@ -387,7 +389,7 @@ void DLASystem::moveLastParticle() {
 	//run jump process yukawa process
 	if(condition == "force_vector_jump"){
 		std::pair<int, int> position = std::make_pair(lastP->pos[0] + 800, lastP->pos[1] + 800);
-		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 15, grid);
+		std::vector<std::pair<int, int>> nearbyParticles = generateRing(position, 10, grid);
 		if (nearbyParticles.size() == 0){
 				
 			int rr = rgen.randomInt(4);
@@ -506,6 +508,8 @@ DLASystem::DLASystem(Window *set_win, int seed_, string condition_) {
 	addRatio = 1.3;   // how much bigger the addCircle should be, compared to cluster radius
 	killRatio = 1.5;   // how much bigger is the killCircle, compared to the addCircle
 
+	//vector<int> foobar = {1};
+
 	// this opens a logfile, if we want to...
 	//logfile.open("opfile.txt");
 }
@@ -523,6 +527,7 @@ DLASystem::~DLASystem() {
 
 	if (logfile.is_open())
 		logfile.close();
+
 }
 
 double DLASystem::FindFractalDimention(int NumParticles, double ClusterRadius){

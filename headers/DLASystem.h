@@ -29,7 +29,7 @@ class DLASystem {
     int seed;
 
     //maximum force intensity for the yukakwa potential if used.
-    int maximumForceScale = 24; 
+    int maximumForceScale = 1.5; 
     
     //Check the geodesic path between two points to jump for collisions 
     std::pair<int,int> isPathClear(int x1, int y1, int x2, int y2);
@@ -62,7 +62,7 @@ class DLASystem {
     double viewSize;
     double drawScale;
   
-  
+    
     // output file (not used at the moment)
     ofstream logfile;
   
@@ -91,7 +91,6 @@ class DLASystem {
 
   public:
   // these are public variables and functions
-
     // random number generator, class name is rnd, instance is rgen
     rnd rgen;
 
@@ -113,7 +112,7 @@ class DLASystem {
 
     // lastParticleIsActive is +1 if there is an active particle in the system, otherwise 0
     int lastParticleIsActive;
-  
+
     // constructor
     DLASystem(Window *set_win, int seed, string condition);
     // destructor
