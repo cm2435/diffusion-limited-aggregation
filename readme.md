@@ -23,8 +23,10 @@ This project is developed using the following software requirements
 
 5. Type "make" to build project
 
+
 6. Run the program by typing "./run"
+6. a) Run takes in two command line arguments, the seed and the running type
+6. b) The two running types for this project are vanilla and force_vector_jump
+6. c) Therefore an example command run would be ./run 5 vanilla 
+6. d) To multi process this, run bash.sh. This defaults to run with 24 processes in parallel, so it may crash smaller computers
 
-7. To edit your files, run gedit, save the code, and recompile with "make -B" before running the program again.
-
-Thanks to Lewis Irvine for figuring this out!
